@@ -1,5 +1,7 @@
+#include "../include/tools.h"
 #include <fstream>
 #include <iostream>
+
 using namespace std;
 int main() {
   fstream f("input.txt");
