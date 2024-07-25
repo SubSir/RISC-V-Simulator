@@ -9,8 +9,9 @@ include_directories(include)
 
 # add_executable(simulator ${sources})
 
-add_executable(alu demo/alu.cpp)
+# add_executable(alu demo/alu.cpp)
 
 # For debug build
-add_executable(modules demo/modules.cpp)
+# add_executable(modules demo/modules.cpp)
+add_executable(modules src/main.cpp)
 target_compile_definitions(modules PRIVATE _DEBUG)
