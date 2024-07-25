@@ -4,13 +4,8 @@
 #include <fstream>
 struct Memory {
   Wire<1> from_rs; // rs 有剩余
-  Wire<1> send_to_rs;
-  Wire<1> rs_get; // rs 获得了值设置为0
+  Wire<1> rs_get;  // rs 获得了值设置为0
   Wire<32> to_rs_wire;
-  Wire<1> from_ldb; // ldb 有剩余
-  Wire<1> send_to_ldb;
-  Wire<1> ldb_get; // ldb 获得了值设置为0
-  Wire<32> to_ldb_wire;
   Wire<32> pc_wire;
   dark::Register<32> pc;
   dark::Register<32> reg;
