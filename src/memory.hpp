@@ -8,6 +8,7 @@ struct Memory {
   Register<1> rs_get_out;
   Register<32> to_rs_wire;
   dark::Register<32> pc;
+  dark::Register<32> pc_past;
   dark::Register<32> reg;
   std::array<dark::Register<8>, 2 * 4096> mem;
   void initialize(std::fstream &file);

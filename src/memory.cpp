@@ -1,6 +1,7 @@
 #include "memory.hpp"
 #include "tools.h"
 #include <cstddef>
+#include <cstdio>
 #include <sstream>
 #include <string>
 
@@ -22,6 +23,7 @@ void Memory::initialize(std::fstream &file) {
 }
 
 void Memory::work() {
+  pc_past <= pc;
   if (from_rs) {
     if (pc < mem.size()) {
       to_rs_wire <= read_a_word(to_unsigned(pc));

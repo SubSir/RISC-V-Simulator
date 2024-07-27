@@ -41,11 +41,12 @@ struct RS_Private {
   std::array<dark::Register<32>, RS_SIZE> a;
   std::array<dark::Register<32>, RS_SIZE> pc;
   std::array<dark::Register<32>, RS_SIZE> time;
-  std::array<dark::Register<32>, 8> regs;
-  std::array<dark::Register<32>, 8> reorder;
-  std::array<dark::Register<1>, 8> reorder_busy;
+  std::array<dark::Register<32>, 32> regs;
+  std::array<dark::Register<32>, 32> reorder;
+  std::array<dark::Register<1>, 32> reorder_busy;
 };
 
 struct RS : dark::Module<RS_Input, RS_Output, RS_Private> {
   void work() override final;
+  void print();
 };

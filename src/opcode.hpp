@@ -37,5 +37,6 @@ enum Opcode {
   JALR,
   AUIPC,
   LUI,
-  ELSE
+  ELSE,
+  PRINT
 };

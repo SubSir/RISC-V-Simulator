@@ -44,5 +44,6 @@ struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
   // Wire<32> to_memory_wire_address;
   // Wire<32> to_memory_wire_value;
   using RoB_Private::memory;
+  int terms = 0;
   void work() override final;
 };
