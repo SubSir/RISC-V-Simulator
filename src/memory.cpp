@@ -1,15 +1,16 @@
 #include "memory.hpp"
 #include "tools.h"
+#include <cstddef>
 #include <sstream>
 #include <string>
 
 void Memory::initialize(std::fstream &file) {
+  int pointer = 0;
   while (!file.eof()) {
-    int pointer = 0;
     std::string line;
     file >> line;
     if (line[0] == '@') {
-      pointer = std::stoi(line.substr(1, line.length() - 1));
+      pointer = std::stoi(line.substr(1, line.length() - 1), nullptr, 16);
     } else {
       std::stringstream ss;
       ss << std::hex << line;
@@ -21,17 +22,14 @@ void Memory::initialize(std::fstream &file) {
 }
 
 void Memory::work() {
-  if (rs_get == 0) {
-    if (from_rs) {
-      if (pc * 4 < mem.size()) {
-        pc <= (pc + 1) * 4;
-        pc_wire = [this]() { return to_unsigned(pc) + 4; };
-        to_rs_wire = [this]() { return read_a_word(to_unsigned(pc)); };
-        rs_get = []() { return 1; };
-        return;
-      }
+  if (from_rs) {
+    if (pc < mem.size()) {
+      to_rs_wire <= read_a_word(to_unsigned(pc));
+      rs_get_out <= 1;
+      return;
     }
   }
+  rs_get_out <= 0;
 }
 
 Bit<8> Memory::read_byte(int address) {

@@ -1,29 +1,34 @@
 #pragma once
+#include "module.h"
 #include "register.h"
 #include "tools.h"
 #include <array>
 const int RS_SIZE = 1024;
-struct RS {
-  Wire<1> to_memory;
-  Wire<1> rs_get; // rs 获得了值设置为0
-  Wire<32> from_memory_wire;
-  Wire<32> pc_wire;
-  Wire<1> from_rob;   // 1 表示 rob 有空缺
-  Wire<1> rob_rs_get; // rs 获得了值设置为0
-  Wire<32> rob_rs_wire;
-  Wire<1> rob_get; // rob 获得了值设置为0
-  Wire<32> to_rob_wire_op;
-  Wire<32> to_rob_wire_rs1;
-  Wire<32> to_rob_wire_rs2;
-  Wire<32> to_rob_wire_dest;
-  Wire<32> to_rob_wire_a;
-  Wire<32> to_rob_wire_pc;
-  Wire<32> to_rob_wire_i;
-  Wire<32> to_rob_wire_time;
+struct RS_Input {
+  Wire<1> rob_rs_get_in; // rs 获得了值设置为0
   Wire<1> rob_error;
-  Wire<1> from_rob_rs_get; // rs 获得了值设置为0
+  Wire<1> from_rob; // 1 表示 rob 有空缺
   Wire<32> from_rob_wire_i;
   Wire<32> from_rob_wire_value;
+  Wire<32> from_memory_wire;
+  Wire<32> pc_wire;
+  Wire<1> rs_get_in; // rs 获得了值设置为0
+};
+
+struct RS_Output {
+  dark::Register<1> to_memory; // 初始化为 1
+  dark::Register<32> to_rob_wire_op;
+  dark::Register<32> to_rob_wire_rs1;
+  dark::Register<32> to_rob_wire_rs2;
+  dark::Register<32> to_rob_wire_dest;
+  dark::Register<32> to_rob_wire_a;
+  dark::Register<32> to_rob_wire_pc;
+  dark::Register<32> to_rob_wire_i;
+  dark::Register<32> to_rob_wire_time;
+  dark::Register<1> rob_get_out; // rob 获得了值设置为0
+};
+
+struct RS_Private {
   std::array<dark::Register<1>, RS_SIZE> busy;
   std::array<dark::Register<1>, RS_SIZE> commited;
   std::array<dark::Register<32>, RS_SIZE> op;
@@ -39,5 +44,8 @@ struct RS {
   std::array<dark::Register<32>, 8> regs;
   std::array<dark::Register<32>, 8> reorder;
   std::array<dark::Register<1>, 8> reorder_busy;
-  void work();
+};
+
+struct RS : dark::Module<RS_Input, RS_Output, RS_Private> {
+  void work() override final;
 };

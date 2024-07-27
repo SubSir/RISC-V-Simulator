@@ -10,8 +10,7 @@ void RS::work() {
       des = std::max(des, to_unsigned(dest[i]));
     }
   }
-  if (rs_get) {
-    rs_get = []() { return 0; };
+  if (rs_get_in) {
     des++;
     for (int i = 0; i < RS_SIZE; i++) {
       if (busy[i] == 0 && from_memory_wire != 0) {
@@ -26,7 +25,6 @@ void RS::work() {
         Bit<5> rs2 = ins.range<24, 20>();
         bool use1 = 1, use2 = 1, userd = 1;
         dest[i] <= des;
-        rd[i] <= to_unsigned(rds);
         pc[i] <= pc_wire;
         commited[i] <= 0;
         if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
@@ -222,7 +220,7 @@ void RS::work() {
           use2 = 0;
           time[i] <= 1;
           a[i] <= to_signed(ins.range<31, 20>());
-        } else if (opcode == 0b1100011) {
+        } else if (opcode == 0b1101111) {
           // JAL
           op[i] <= JAL;
           use1 = 0;
@@ -271,6 +269,8 @@ void RS::work() {
         }
         if (userd == 0) {
           rd[i] <= 8;
+        } else {
+          rd[i] <= to_unsigned(rds);
         }
         break;
       }
@@ -292,27 +292,33 @@ void RS::work() {
     if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0 &&
         op[i] != ELSE) {
       if (from_rob) {
-        if (rob_get == 0) {
-          commited[i] <= 1;
-          rob_get = []() { return 1; };
-          to_rob_wire_op = [this, i]() { return +op[i]; };
-          to_rob_wire_rs1 = [this, i]() { return +vj[i]; };
-          to_rob_wire_rs2 = [this, i]() { return +vk[i]; };
-          to_rob_wire_dest = [this, i]() { return +dest[i]; };
-          to_rob_wire_a = [this, i]() { return +a[i]; };
-          to_rob_wire_pc = [this, i]() { return +pc[i]; };
-          to_rob_wire_i = [i]() { return i; };
-          to_rob_wire_time = [this, i]() { return +time[i]; };
-          if (to_unsigned(rd[i]) != 8) {
-            reorder_busy[to_unsigned(rd[i])] <= 1;
-            reorder[to_unsigned(rd[i])] <= i;
-          }
+        commited[i] <= 1;
+        rob_get_out <= 1;
+        to_rob_wire_op <= +op[i];
+
+        to_rob_wire_rs1 <= +vj[i];
+
+        to_rob_wire_rs2 <= +vk[i];
+
+        to_rob_wire_dest <= +dest[i];
+
+        to_rob_wire_a <= +a[i];
+
+        to_rob_wire_pc <= +pc[i];
+
+        to_rob_wire_i <= i;
+        to_rob_wire_time <= +time[i];
+
+        if (to_unsigned(rd[i]) != 8) {
+          reorder_busy[to_unsigned(rd[i])] <= 1;
+          reorder[to_unsigned(rd[i])] <= i;
         }
+      } else {
+        rob_get_out <= 0;
       }
     }
   }
-  if (rob_rs_get) {
-    rob_rs_get = []() { return 0; };
+  if (rob_rs_get_in) {
     int order = to_unsigned(from_rob_wire_i);
     busy[order] <= 0;
     for (int i = 0; i < RS_SIZE; i++) {
@@ -334,8 +340,7 @@ void RS::work() {
   }
 
   if (rob_error) {
-    rs_get = []() { return 0; };
-    rob_get = []() { return 0; };
+    rob_get_out <= 0;
     for (int i = 0; i < RS_SIZE; i++) {
       busy[i] <= 0;
     }
@@ -344,5 +349,5 @@ void RS::work() {
     }
     flag = 1;
   }
-  to_memory = [flag]() { return flag; };
+  to_memory <= flag;
 }

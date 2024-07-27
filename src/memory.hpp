@@ -1,12 +1,12 @@
 #pragma once
 #include "../include/tools.h"
 #include "register.h"
+#include "synchronize.h"
 #include <fstream>
 struct Memory {
   Wire<1> from_rs; // rs 有剩余
-  Wire<1> rs_get;  // rs 获得了值设置为0
-  Wire<32> to_rs_wire;
-  Wire<32> pc_wire;
+  Register<1> rs_get_out;
+  Register<32> to_rs_wire;
   dark::Register<32> pc;
   dark::Register<32> reg;
   std::array<dark::Register<8>, 2 * 4096> mem;
