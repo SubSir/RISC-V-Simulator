@@ -38,5 +38,4 @@ enum Opcode {
   AUIPC,
   LUI,
   ELSE,
-  PRINT
 };

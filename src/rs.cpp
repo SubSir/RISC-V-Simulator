@@ -6,14 +6,18 @@
 void RS::work() {
   if (rob_rs_get_in) {
     int order = to_unsigned(from_rob_wire_i);
-    busy[order] <= 0;
-    if (dest[order] == 33) {
+    if (rob_error == 0)
+      busy[order] <= 0;
+    if (op[order] == ADDI && rd[order] == 10 && vj[order] == 0 &&
+        a[order] == 255) {
       print();
     }
     Bit value = from_rob_wire_value;
-    if (reorder_busy[0] && reorder[0] == dest[order]) {
+    if (reorder_busy[0] && reorder[0] == dest[order]) { // 修改 r0
       value = 0;
     }
+    std::cout << to_unsigned(rd[order]) << " : " << to_signed(value)
+              << std::endl;
     for (int i = 0; i < RS_SIZE; i++) {
       if (busy[i] && qj[i] == dest[order]) {
         qj[i] <= 0;
@@ -26,10 +30,11 @@ void RS::work() {
     }
     for (int i = 0; i < 32; i++) {
       if (reorder_busy[i] && reorder[i] == dest[order]) {
-        reorder_busy[i] <= 0;
-        regs[i] <= value;
+        if (rob_error == 0)
+          reorder_busy[i] <= 0;
       }
     }
+    regs[to_unsigned(rd[order])] <= value;
   }
   if (rob_error) {
     rob_get_out <= 0;
@@ -199,6 +204,9 @@ void RS::work() {
           use2 = 0;
           time[i] <= 3;
           a[i] <= to_signed(ins.range<31, 20>());
+          // std::cout << "lw,rd = " << to_unsigned(rds)
+          //           << " ,rs1 = " << to_unsigned(rs1) << " ,i = " << i
+          //           << std::endl;
         } else if (opcode == 0b0100011 && funct3 == 0b000) {
           // SB
           op[i] <= SB;
@@ -268,7 +276,7 @@ void RS::work() {
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
-        } else if (opcode == 0b1101111 && funct3 == 0b000) {
+        } else if (opcode == 0b1100111 && funct3 == 0b000) {
           // JALR
           op[i] <= JALR;
           use2 = 0;
@@ -289,20 +297,16 @@ void RS::work() {
           use1 = 0;
           use2 = 0;
           time[i] <= 1;
-          a[i] <= to_signed(ins.range<31, 12>());
+          Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
+          a[i] <= to_signed(c);
         } else if (opcode == 0b0110111) {
           // LUI
           op[i] <= LUI;
           use1 = 0;
           use2 = 0;
           time[i] <= 1;
-          a[i] <= to_signed(ins.range<31, 12>());
-        } else if (ins == 0x0ff00513) {
-          op[i] <= PRINT;
-          use1 = 0;
-          use2 = 0;
-          userd = 0;
-          time[i] <= 0;
+          Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
+          a[i] <= to_signed(c);
         } else {
           op[i] <= ELSE;
           use1 = 0;
@@ -331,10 +335,12 @@ void RS::work() {
           vk[i] <= 0;
           qk[i] <= 0;
         }
-        if (userd == 0) {
-          rd[i] <= 32;
-        } else {
+        if (userd) {
+          reorder_busy[to_unsigned(rds)] <= 1;
+          reorder[to_unsigned(rds)] <= des;
           rd[i] <= to_unsigned(rds);
+        } else {
+          rd[i] <= 32;
         }
         break;
       }
@@ -356,6 +362,11 @@ void RS::work() {
     if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0 &&
         op[i] != ELSE) {
       if (from_rob) {
+        // if (op[i] == LW) {
+        //   std::cout << "lw: i = " << i << std::endl;
+        // }
+        std::cout << std::dec << "commited: i = " << i
+                  << " op = " << to_unsigned(op[i]) << std::endl;
         commited[i] <= 1;
         rob_get_out <= 1;
         rob_get_out_flag = 1;
@@ -367,11 +378,6 @@ void RS::work() {
         to_rob_wire_pc <= +pc[i];
         to_rob_wire_i <= i;
         to_rob_wire_time <= +time[i];
-
-        if (to_unsigned(rd[i]) < 32) {
-          reorder_busy[to_unsigned(rd[i])] <= 1;
-          reorder[to_unsigned(rd[i])] <= dest[i];
-        }
         break;
       }
     }
@@ -384,5 +390,6 @@ void RS::work() {
 
 void RS::print() {
   Bit a = regs[10];
-  std::cout << to_unsigned(a.range<7, 0>()) << std::endl;
+  std::cout << std::dec << to_unsigned(a.range<7, 0>()) << std::endl;
+  exit(0);
 }
