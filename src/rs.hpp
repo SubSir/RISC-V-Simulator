@@ -29,6 +29,7 @@ struct RS_Output {
 };
 
 struct RS_Private {
+  Register<32> pos;
   std::array<dark::Register<1>, RS_SIZE> busy;
   std::array<dark::Register<1>, RS_SIZE> commited;
   std::array<dark::Register<32>, RS_SIZE> op;

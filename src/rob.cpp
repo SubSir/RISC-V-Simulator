@@ -44,15 +44,38 @@ void RoB::work() {
         std::cout << "XOR " << to_unsigned(rs1[head]) << " ^ "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLL) {
-        to_rs_wire_value <= (rs1[head] << rs2[head]);
+        int shift = to_unsigned(rs2[head]);
+        int b = 0;
+        Bit<32> bb = rs1[head];
+        for (int i = shift; i < 32; i++) {
+          b += (to_unsigned(bb[i - shift]) << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SLL " << to_unsigned(rs1[head]) << " << "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRA) {
-        to_rs_wire_value <= (rs1[head] >> rs2[head]);
+        int shift = to_unsigned(rs2[head]);
+        int b = 0;
+
+        Bit<32> bb = rs1[head];
+        for (int i = 0; i < 32 - shift; i++) {
+          b += (to_unsigned(bb[i + shift]) << i);
+        }
+        for (int i = 32 - shift; i < 32; i++) {
+          b += (to_unsigned(bb[31]) << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SRA " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRL) {
-        to_rs_wire_value <= (rs1[head] >> rs2[head]);
+        int shift = to_unsigned(rs2[head]);
+        int b = 0;
+
+        Bit<32> bb = rs1[head];
+        for (int i = 0; i < 32 - shift; i++) {
+          b += (to_unsigned(bb[i + shift]) << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SRL " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLT) {
@@ -109,7 +132,7 @@ void RoB::work() {
           b += (to_unsigned(bb[i + shift]) << i);
         }
         for (int i = 32 - shift; i < 32; i++) {
-          b += (1 << i);
+          b += (to_unsigned(bb[31]) << i);
         }
         to_rs_wire_value <= b;
         std::cout << "SRAI " << to_unsigned(rs1[head]) << " >> "
@@ -278,7 +301,7 @@ void RoB::work() {
   if (pos_shift) {
     pos <= head;
   }
-  if (rob_get_in) {
+  if (rob_get_in && rob_error != 1) {
     int ii = to_unsigned(from_rs_wire_dest) % ROB_SIZE;
     if (ii == pos) {
       to_rs <= 0;

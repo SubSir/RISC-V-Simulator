@@ -18,8 +18,8 @@ void RS::work() {
     if (rd[order] == 0) {
       value = 0;
     }
-    std::cout << "         " << to_unsigned(rd[order]) << " : "
-              << to_signed(value) << std::endl;
+    // std::cout << "         " << to_unsigned(rd[order]) << " : "
+    // << to_signed(value) << std::endl;
     for (int i = 0; i < RS_SIZE; i++) {
       if (busy[i] && qj[i] == dest[order]) {
         qj[i] <= 0;
@@ -41,6 +41,7 @@ void RS::work() {
   }
   if (rob_error) {
     rob_get_out <= 0;
+    pos <= 0;
     for (int i = 0; i < RS_SIZE; i++) {
       busy[i] <= 0;
     }
@@ -51,14 +52,12 @@ void RS::work() {
     return;
   }
   int tmp = -1, twice = 0;
-  max_size_t des = 0;
-  for (int i = 0; i < RS_SIZE; i++) {
-    if (busy[i] == 1) {
-      des = std::max(des, to_unsigned(dest[i]));
-    }
-  }
+  max_size_t des = to_unsigned(pos + 1);
   if (rs_get_in && from_memory_wire != 0) {
-    des++;
+    pos <= pos + 1;
+    // if (pc_wire == 0x113c) {
+    //   std::cout << "error" << std::endl;
+    // }
     for (int i = 0; i < RS_SIZE; i++) {
       if (busy[i] == 0) {
         busy[i] <= 1;
@@ -77,109 +76,109 @@ void RS::work() {
         if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
           // ADD
           op[i] <= ADD;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b000 &&
                    funct7 == 0b0100000) {
           // SUB
           op[i] <= SUB;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b111 &&
                    funct7 == 0b0000000) {
           // AND
           op[i] <= AND;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b110 &&
                    funct7 == 0b0000000) {
           // OR
           op[i] <= OR;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b100 &&
                    funct7 == 0b0000000) {
           // XOR
           op[i] <= XOR;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b001 &&
                    funct7 == 0b0000000) {
           // SLL
           op[i] <= SLL;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b101 &&
                    funct7 == 0b0000000) {
           // SRL
           op[i] <= SRL;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b101 &&
                    funct7 == 0b0100000) {
           // SRA
           op[i] <= SRA;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b010 &&
                    funct7 == 0b0000000) {
           // SLT
           op[i] <= SLT;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0110011 && funct3 == 0b011 &&
                    funct7 == 0b0000000) {
           // SLTU
           op[i] <= SLTU;
-          time[i] <= 1;
+          time[i] <= 0;
         } else if (opcode == 0b0010011 && funct3 == 0b000) {
           // ADDI
           op[i] <= ADDI;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b111) {
           // ANDI
           op[i] <= ANDI;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b110) {
           // ORI
           op[i] <= ORI;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b100) {
           // XORI
           op[i] <= XORI;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b001 &&
                    funct7 == 0b0000000) {
           // SLLI
           op[i] <= SLLI;
           use2 = 0;
-          time[i] <= 1;
-          a[i] <= to_signed(ins.range<24, 20>());
+          time[i] <= 0;
+          a[i] <= to_unsigned(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b101 &&
                    funct7 == 0b0000000) {
           // SRLI
           op[i] <= SRLI;
           use2 = 0;
-          time[i] <= 1;
-          a[i] <= to_signed(ins.range<24, 20>());
+          time[i] <= 0;
+          a[i] <= to_unsigned(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b101 &&
                    funct7 == 0b0100000) {
           // SRAI
           op[i] <= SRAI;
           use2 = 0;
-          time[i] <= 1;
-          a[i] <= to_signed(ins.range<24, 20>());
+          time[i] <= 0;
+          a[i] <= to_unsigned(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b010) {
           // SLTI
           op[i] <= SLTI;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b011) {
           // SLTIU
           op[i] <= SLTIU;
           use2 = 0;
-          time[i] <= 1;
-          a[i] <= to_signed(ins.range<31, 20>());
+          time[i] <= 0;
+          a[i] <= to_unsigned(ins.range<31, 20>());
         } else if (opcode == 0b0000011 && funct3 == 0b000) {
           // LB
           op[i] <= LB;
@@ -238,7 +237,7 @@ void RS::work() {
           // BEQ
           op[i] <= BEQ;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -246,7 +245,7 @@ void RS::work() {
           // BGE
           op[i] <= BGE;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -254,7 +253,7 @@ void RS::work() {
           // BGEU
           op[i] <= BGEU;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -262,7 +261,7 @@ void RS::work() {
           // BLT
           op[i] <= BLT;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -270,7 +269,7 @@ void RS::work() {
           // BLTU
           op[i] <= BLTU;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -278,7 +277,7 @@ void RS::work() {
           // BNE
           op[i] <= BNE;
           userd = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -286,14 +285,14 @@ void RS::work() {
           // JALR
           op[i] <= JALR;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           a[i] <= to_signed(ins.range<31, 20>());
         } else if (opcode == 0b1101111) {
           // JAL
           op[i] <= JAL;
           use1 = 0;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
                      Bit<1>()};
           a[i] <= to_signed(imm);
@@ -302,7 +301,7 @@ void RS::work() {
           op[i] <= AUIPC;
           use1 = 0;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
           a[i] <= to_signed(c);
         } else if (opcode == 0b0110111) {
@@ -310,7 +309,7 @@ void RS::work() {
           op[i] <= LUI;
           use1 = 0;
           use2 = 0;
-          time[i] <= 1;
+          time[i] <= 0;
           Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
           a[i] <= to_signed(c);
         } else {
@@ -366,11 +365,6 @@ void RS::work() {
   if (!twice and free_rd != -1) {
     reorder_busy[free_rd] <= 0;
   }
-  for (int i = 0; i < RS_SIZE; i++) {
-    if (busy[i] && op[i] == ELSE) {
-      busy[i] <= 0;
-    }
-  }
   bool flag = 0, rob_get_out_flag = 0;
   for (int i = 0; i < RS_SIZE; i++) {
     if (busy[i] == 0 and i != tmp) {
@@ -379,8 +373,7 @@ void RS::work() {
     }
   }
   for (int i = 0; i < RS_SIZE; i++) {
-    if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0 &&
-        op[i] != ELSE) {
+    if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0) {
       if (from_rob) {
         // if (op[i] == LW) {
         //   std::cout << "lw: i = " << i << std::endl;

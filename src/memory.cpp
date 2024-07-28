@@ -26,6 +26,7 @@ void Memory::work() {
   pc_past <= pc;
   if (from_rs) {
     if (pc < mem.size()) {
+      // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
       to_rs_wire <= read_a_word(to_unsigned(pc));
       rs_get_out <= 1;
       return;
