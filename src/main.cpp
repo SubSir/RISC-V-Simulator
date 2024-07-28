@@ -37,5 +37,5 @@ int main() {
   rob.from_rs_wire_rs1 = [&]() -> auto & { return rs.to_rob_wire_rs1; };
   rob.from_rs_wire_rs2 = [&]() -> auto & { return rs.to_rob_wire_rs2; };
   rob.from_rs_wire_time = [&]() -> auto & { return rs.to_rob_wire_time; };
-  cpu.run(20000, true);
+  cpu.run(1000, true);
 }

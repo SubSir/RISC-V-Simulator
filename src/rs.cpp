@@ -4,6 +4,8 @@
 #include "opcode.hpp"
 #include "tools.h"
 void RS::work() {
+  int free_rd = -1;
+  Bit<32> free_rd_value = 0;
   if (rob_rs_get_in) {
     int order = to_unsigned(from_rob_wire_i);
     if (rob_error == 0)
@@ -13,11 +15,11 @@ void RS::work() {
       print();
     }
     Bit value = from_rob_wire_value;
-    if (reorder_busy[0] && reorder[0] == dest[order]) { // 修改 r0
+    if (rd[order] == 0) {
       value = 0;
     }
-    std::cout << to_unsigned(rd[order]) << " : " << to_signed(value)
-              << std::endl;
+    std::cout << "         " << to_unsigned(rd[order]) << " : "
+              << to_signed(value) << std::endl;
     for (int i = 0; i < RS_SIZE; i++) {
       if (busy[i] && qj[i] == dest[order]) {
         qj[i] <= 0;
@@ -31,10 +33,11 @@ void RS::work() {
     for (int i = 0; i < 32; i++) {
       if (reorder_busy[i] && reorder[i] == dest[order]) {
         if (rob_error == 0)
-          reorder_busy[i] <= 0;
+          free_rd = i;
       }
     }
     regs[to_unsigned(rd[order])] <= value;
+    free_rd_value = value;
   }
   if (rob_error) {
     rob_get_out <= 0;
@@ -47,7 +50,7 @@ void RS::work() {
     to_memory <= 1;
     return;
   }
-  int tmp = -1;
+  int tmp = -1, twice = 0;
   max_size_t des = 0;
   for (int i = 0; i < RS_SIZE; i++) {
     if (busy[i] == 1) {
@@ -150,18 +153,21 @@ void RS::work() {
           op[i] <= SLLI;
           use2 = 0;
           time[i] <= 1;
+          a[i] <= to_signed(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b101 &&
                    funct7 == 0b0000000) {
           // SRLI
           op[i] <= SRLI;
           use2 = 0;
           time[i] <= 1;
+          a[i] <= to_signed(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b101 &&
                    funct7 == 0b0100000) {
           // SRAI
           op[i] <= SRAI;
           use2 = 0;
           time[i] <= 1;
+          a[i] <= to_signed(ins.range<24, 20>());
         } else if (opcode == 0b0010011 && funct3 == 0b010) {
           // SLTI
           op[i] <= SLTI;
@@ -315,9 +321,13 @@ void RS::work() {
           rds = 33;
           time[i] <= 0;
         }
-        if (use1 && reorder_busy[to_unsigned(rs1)]) {
+        if (use1 &&
+            (reorder_busy[to_unsigned(rs1)] && free_rd != to_unsigned(rs1))) {
           vj[i] <= 0;
           qj[i] <= reorder[to_unsigned(rs1)];
+        } else if (use1 && free_rd == to_unsigned(rs1)) {
+          vj[i] <= free_rd_value;
+          qj[i] <= 0;
         } else if (use1) {
           vj[i] <= regs[to_unsigned(rs1)];
           qj[i] <= 0;
@@ -325,9 +335,13 @@ void RS::work() {
           vj[i] <= 0;
           qj[i] <= 0;
         }
-        if (use2 && reorder_busy[to_unsigned(rs2)]) {
+        if (use2 &&
+            (reorder_busy[to_unsigned(rs2)] && free_rd != to_unsigned(rs2))) {
           vk[i] <= 0;
           qk[i] <= reorder[to_unsigned(rs2)];
+        } else if (use2 && free_rd == to_unsigned(rs2)) {
+          vk[i] <= free_rd_value;
+          qk[i] <= 0;
         } else if (use2) {
           vk[i] <= regs[to_unsigned(rs2)];
           qk[i] <= 0;
@@ -339,12 +353,18 @@ void RS::work() {
           reorder_busy[to_unsigned(rds)] <= 1;
           reorder[to_unsigned(rds)] <= des;
           rd[i] <= to_unsigned(rds);
+          if (to_unsigned(rds) == free_rd) {
+            twice = 1;
+          }
         } else {
           rd[i] <= 32;
         }
         break;
       }
     }
+  }
+  if (!twice and free_rd != -1) {
+    reorder_busy[free_rd] <= 0;
   }
   for (int i = 0; i < RS_SIZE; i++) {
     if (busy[i] && op[i] == ELSE) {
@@ -365,8 +385,8 @@ void RS::work() {
         // if (op[i] == LW) {
         //   std::cout << "lw: i = " << i << std::endl;
         // }
-        std::cout << std::dec << "commited: i = " << i
-                  << " op = " << to_unsigned(op[i]) << std::endl;
+        // std::cout << std::dec << "          commited: i = " << i
+        //           << " op = " << to_unsigned(op[i]) << std::endl;
         commited[i] <= 1;
         rob_get_out <= 1;
         rob_get_out_flag = 1;

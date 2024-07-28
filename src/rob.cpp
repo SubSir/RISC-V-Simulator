@@ -80,15 +80,38 @@ void RoB::work() {
         std::cout << "XORI " << to_unsigned(rs1[head]) << " ^ "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SLLI) {
-        to_rs_wire_value <= (rs1[head] << a[head]);
+        int shift = to_unsigned(a[head]);
+        int b = 0;
+        Bit<32> bb = rs1[head];
+        for (int i = shift; i < 32; i++) {
+          b += (to_unsigned(bb[i - shift]) << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SLLI " << to_unsigned(rs1[head]) << " << "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SRLI) {
-        to_rs_wire_value <= (rs1[head] >> a[head]);
+        int shift = to_unsigned(a[head]);
+        int b = 0;
+
+        Bit<32> bb = rs1[head];
+        for (int i = 0; i < 32 - shift; i++) {
+          b += (to_unsigned(bb[i + shift]) << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SRLI " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SRAI) {
-        to_rs_wire_value <= (rs1[head] >> a[head]);
+        int shift = to_unsigned(a[head]);
+        int b = 0;
+
+        Bit<32> bb = rs1[head];
+        for (int i = 0; i < 32 - shift; i++) {
+          b += (to_unsigned(bb[i + shift]) << i);
+        }
+        for (int i = 32 - shift; i < 32; i++) {
+          b += (1 << i);
+        }
+        to_rs_wire_value <= b;
         std::cout << "SRAI " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SLTI) {
@@ -151,44 +174,54 @@ void RoB::work() {
                   << std::endl;
       } else if (op[head] == BEQ) {
         to_rs_flag = 0;
+        std::cout << "BEQ " << to_unsigned(rs1[head])
+                  << " == " << to_unsigned(rs2[head]) << std::endl;
         if (rs1[head] == rs2[head]) {
           memory.pc <= pc[head] + a[head];
           error = 1;
+          std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+                    << std::endl;
         }
-        std::cout << "BEQ " << to_unsigned(rs1[head])
-                  << " == " << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == BGE) {
         to_rs_flag = 0;
+        std::cout << "BGE " << to_signed(rs1[head])
+                  << " >= " << to_signed(rs2[head]) << std::endl;
         if (to_signed(rs1[head]) >= to_signed(rs2[head])) {
           memory.pc <= pc[head] + a[head];
           error = 1;
+          std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+                    << std::endl;
         }
-        std::cout << "BGE " << to_unsigned(rs1[head])
-                  << " >= " << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == BGEU) {
         to_rs_flag = 0;
+        std::cout << "BGEU " << to_unsigned(rs1[head])
+                  << " >= " << to_unsigned(rs2[head]) << std::endl;
         if (to_unsigned(rs1[head]) >= to_unsigned(rs2[head])) {
           memory.pc <= pc[head] + a[head];
           error = 1;
+          std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+                    << std::endl;
         }
-        std::cout << "BGEU " << to_unsigned(rs1[head])
-                  << " >= " << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == BLTU) {
         to_rs_flag = 0;
+        std::cout << "BLTU " << to_unsigned(rs1[head]) << " < "
+                  << to_unsigned(rs2[head]) << std::endl;
         if (to_unsigned(rs1[head]) < to_unsigned(rs2[head])) {
           memory.pc <= pc[head] + a[head];
           error = 1;
+          std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+                    << std::endl;
         }
-        std::cout << "BLTU " << to_unsigned(rs1[head]) << " < "
-                  << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == BLT) {
         to_rs_flag = 0;
+        std::cout << "BLT " << to_signed(rs1[head]) << " < "
+                  << to_signed(rs2[head]) << std::endl;
         if (to_signed(rs1[head]) < to_signed(rs2[head])) {
           memory.pc <= pc[head] + a[head];
           error = 1;
+          std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+                    << std::endl;
         }
-        std::cout << "BLT " << to_unsigned(rs1[head]) << " < "
-                  << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == BNE) {
         to_rs_flag = 0;
         if (rs1[head] != rs2[head]) {
