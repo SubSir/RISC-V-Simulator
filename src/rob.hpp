@@ -24,10 +24,12 @@ struct RoB_Output {
   dark::Register<1> to_rs;
   dark::Register<32> to_rs_wire_i;
   dark::Register<32> to_rs_wire_value;
+  dark::Register<1> update;
 };
 
 struct RoB_Private {
   dark::Register<32> pos;
+  dark::Register<32> max_pos;
   std::array<dark::Register<1>, ROB_SIZE> busy;
   std::array<dark::Register<32>, ROB_SIZE> i;
   std::array<dark::Register<32>, ROB_SIZE> op;

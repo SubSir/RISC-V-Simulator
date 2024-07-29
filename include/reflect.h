@@ -96,6 +96,11 @@ auto tuplify(_Tp &value) {
            x15] = value;
     return std::forward_as_tuple(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10,
                                  x11, x12, x13, x14, x15);
+  } else if constexpr (size == 17) {
+    auto &[x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15,
+           x16] = value;
+    return std::forward_as_tuple(x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10,
+                                 x11, x12, x13, x14, x15, x16);
   } else {
     static_assert(sizeof(_Tp) == 0, "The struct has too many members.");
   }

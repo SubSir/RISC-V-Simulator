@@ -11,6 +11,7 @@ struct RS_Input {
   Wire<32> from_rob_wire_i;
   Wire<32> from_rob_wire_value;
   Wire<32> from_memory_wire;
+  Wire<1> from_rob_wire_update;
   Wire<32> pc_wire;
   Wire<1> rs_get_in; // rs 获得了值设置为0
 };
@@ -29,7 +30,7 @@ struct RS_Output {
 };
 
 struct RS_Private {
-  Register<32> pos;
+  Register<32> head, pos;
   std::array<dark::Register<1>, RS_SIZE> busy;
   std::array<dark::Register<1>, RS_SIZE> commited;
   std::array<dark::Register<32>, RS_SIZE> op;

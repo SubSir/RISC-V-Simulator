@@ -22,6 +22,7 @@ int main() {
   rs.rob_error = [&]() -> auto & { return rob.rob_error; };
   rs.from_rob_wire_i = [&]() -> auto & { return rob.to_rs_wire_i; };
   rs.from_rob_wire_value = [&]() -> auto & { return rob.to_rs_wire_value; };
+  rs.from_rob_wire_update = [&]() -> auto & { return rob.update; };
   rs.rs_get_in = [&]() -> auto & { return rob.memory.rs_get_out; };
   rs.rob_rs_get_in = [&]() -> auto & { return rob.rs_get_out; };
   rob.from_rs_wire_a = [&]() -> auto & { return rs.to_rob_wire_a; };

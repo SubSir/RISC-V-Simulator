@@ -275,9 +275,13 @@ void RoB::work() {
       } else {
         to_rs_flag = 0;
       }
-      if (to_rs_flag) {
-        rs_get_out <= 1;
-        to_rs_wire_i <= i[head];
+      rs_get_out <= 1;
+      to_rs_wire_i <= i[head];
+      if (!to_rs_flag) {
+        to_rs_flag = 1;
+        update <= 0;
+      } else {
+        update <= 1;
       }
     }
   }
@@ -286,13 +290,14 @@ void RoB::work() {
   }
   if (error) {
     rob_error <= 1;
-    for (int i = 1; i < ROB_SIZE; i++) {
+    for (int i = to_unsigned(pos); i <= to_unsigned(max_pos); i++) {
       if (head_twice && i == head)
         continue;
       busy[i] <= 0;
     }
     to_rs <= 1;
     pos <= 0;
+    max_pos <= 0;
     return;
   }
   rob_error <= 0;
@@ -313,6 +318,7 @@ void RoB::work() {
     rs1[ii] <= from_rs_wire_rs1;
     rs2[ii] <= from_rs_wire_rs2;
     time[ii] <= from_rs_wire_time;
+    max_pos <= std::max(ii, to_signed(max_pos));
   }
   if (!twice) {
     if (busy[to_unsigned(pos)]) {
@@ -321,7 +327,7 @@ void RoB::work() {
       to_rs <= 1;
     }
   }
-  for (int i = 1; i < ROB_SIZE; i++) {
+  for (int i = to_unsigned(pos); i <= to_unsigned(max_pos); i++) {
     if (busy[i]) {
       if (time[i] != 0) {
         time[i] <= time[i] - 1;
