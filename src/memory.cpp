@@ -1,4 +1,5 @@
 #include "memory.hpp"
+#include "opcode.hpp"
 #include "tools.h"
 #include <cstddef>
 #include <cstdio>
@@ -27,8 +28,274 @@ void Memory::work() {
   if (from_rs) {
     if (pc < mem.size()) {
       // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
-      to_rs_wire <= read_a_word(to_unsigned(pc));
       rs_get_out <= 1;
+      Bit<32> ins = read_a_word(to_unsigned(pc));
+      int funct7 = to_unsigned(ins.range<31, 25>());
+      int funct3 = to_unsigned(ins.range<14, 12>());
+      int opcode = to_unsigned(ins.range<6, 0>());
+      int rds = to_unsigned(ins.range<11, 7>());
+      int rs1 = to_unsigned(ins.range<19, 15>());
+      int rs2 = to_unsigned(ins.range<24, 20>());
+      bool use1 = 1, use2 = 1, userd = 1;
+      if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
+        // ADD
+        to_rs_op <= ADD;
+      } else if (opcode == 0b0110011 && funct3 == 0b000 &&
+                 funct7 == 0b0100000) {
+        // SUB
+        to_rs_op <= SUB;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b111 &&
+                 funct7 == 0b0000000) {
+        // AND
+        to_rs_op <= AND;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b110 &&
+                 funct7 == 0b0000000) {
+        // OR
+        to_rs_op <= OR;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b100 &&
+                 funct7 == 0b0000000) {
+        // XOR
+        to_rs_op <= XOR;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b001 &&
+                 funct7 == 0b0000000) {
+        // SLL
+        to_rs_op <= SLL;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b101 &&
+                 funct7 == 0b0000000) {
+        // SRL
+        to_rs_op <= SRL;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b101 &&
+                 funct7 == 0b0100000) {
+        // SRA
+        to_rs_op <= SRA;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b010 &&
+                 funct7 == 0b0000000) {
+        // SLT
+        to_rs_op <= SLT;
+
+      } else if (opcode == 0b0110011 && funct3 == 0b011 &&
+                 funct7 == 0b0000000) {
+        // SLTU
+        to_rs_op <= SLTU;
+
+      } else if (opcode == 0b0010011 && funct3 == 0b000) {
+        // ADDI
+        to_rs_op <= ADDI;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b111) {
+        // ANDI
+        to_rs_op <= ANDI;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b110) {
+        // ORI
+        to_rs_op <= ORI;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b100) {
+        // XORI
+        to_rs_op <= XORI;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b001 &&
+                 funct7 == 0b0000000) {
+        // SLLI
+        to_rs_op <= SLLI;
+        use2 = 0;
+
+        to_rs_a <= to_unsigned(ins.range<24, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b101 &&
+                 funct7 == 0b0000000) {
+        // SRLI
+        to_rs_op <= SRLI;
+        use2 = 0;
+
+        to_rs_a <= to_unsigned(ins.range<24, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b101 &&
+                 funct7 == 0b0100000) {
+        // SRAI
+        to_rs_op <= SRAI;
+        use2 = 0;
+
+        to_rs_a <= to_unsigned(ins.range<24, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b010) {
+        // SLTI
+        to_rs_op <= SLTI;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0010011 && funct3 == 0b011) {
+        // SLTIU
+        to_rs_op <= SLTIU;
+        use2 = 0;
+
+        to_rs_a <= to_unsigned(ins.range<31, 20>());
+      } else if (opcode == 0b0000011 && funct3 == 0b000) {
+        // LB
+        to_rs_op <= LB;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0000011 && funct3 == 0b100) {
+        // LBU
+        to_rs_op <= LBU;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0000011 && funct3 == 0b001) {
+        // LH
+        to_rs_op <= LH;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0000011 && funct3 == 0b101) {
+        // LHU
+        to_rs_op <= LHU;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b0000011 && funct3 == 0b010) {
+        // LW
+        to_rs_op <= LW;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+        // std::cout << "lw,rd = " << rds
+        //           << " ,rs1 = " << rs1 << " ,i = " << i
+        //           << std::endl;
+      } else if (opcode == 0b0100011 && funct3 == 0b000) {
+        // SB
+        to_rs_op <= SB;
+        userd = 0;
+
+        Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b0100011 && funct3 == 0b001) {
+        // SH
+        to_rs_op <= SH;
+        userd = 0;
+
+        Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b0100011 && funct3 == 0b010) {
+        // SW
+        to_rs_op <= SW;
+        userd = 0;
+
+        Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b000) {
+        // BEQ
+        to_rs_op <= BEQ;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b101) {
+        // BGE
+        to_rs_op <= BGE;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b111) {
+        // BGEU
+        to_rs_op <= BGEU;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b100) {
+        // BLT
+        to_rs_op <= BLT;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b110) {
+        // BLTU
+        to_rs_op <= BLTU;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100011 && funct3 == 0b001) {
+        // BNE
+        to_rs_op <= BNE;
+        userd = 0;
+
+        Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b1100111 && funct3 == 0b000) {
+        // JALR
+        to_rs_op <= JALR;
+        use2 = 0;
+
+        to_rs_a <= to_signed(ins.range<31, 20>());
+      } else if (opcode == 0b1101111) {
+        // JAL
+        to_rs_op <= JAL;
+        use1 = 0;
+        use2 = 0;
+
+        Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
+                   Bit<1>()};
+        to_rs_a <= to_signed(imm);
+      } else if (opcode == 0b0010111) {
+        // AUIPC
+        to_rs_op <= AUIPC;
+        use1 = 0;
+        use2 = 0;
+
+        Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
+        to_rs_a <= to_signed(c);
+      } else if (opcode == 0b0110111) {
+        // LUI
+        to_rs_op <= LUI;
+        use1 = 0;
+        use2 = 0;
+
+        Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
+        to_rs_a <= to_signed(c);
+      } else {
+        to_rs_op <= ELSE;
+        use1 = 0;
+        use2 = 0;
+        userd = 0;
+      }
+      if (use1) {
+        to_rs_rs1 <= rs1;
+      } else {
+        to_rs_rs1 <= 32;
+      }
+      if (use2) {
+        to_rs_rs2 <= rs2;
+      } else {
+        to_rs_rs2 <= 32;
+      }
+      if (userd) {
+        to_rs_rd <= rds;
+      } else {
+        to_rs_rd <= 32;
+      }
       return;
     }
   }

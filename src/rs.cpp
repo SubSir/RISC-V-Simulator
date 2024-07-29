@@ -58,7 +58,7 @@ void RS::work() {
   }
   int tmp = -1, twice = 0;
   max_size_t des = to_unsigned(pos + 1);
-  if (rs_get_in && from_memory_wire != 0) {
+  if (rs_get_in && from_memory_op != ELSE) {
     pos <= pos + 1;
     // if (pc_wire == 0x113c) {
     //   std::cout << "error" << std::endl;
@@ -71,244 +71,248 @@ void RS::work() {
     }
     busy[i] <= 1;
     tmp = i;
-    Bit<32> ins = from_memory_wire;
-    int funct7 = to_unsigned(ins.range<31, 25>());
-    int funct3 = to_unsigned(ins.range<14, 12>());
-    int opcode = to_unsigned(ins.range<6, 0>());
-    int rds = to_unsigned(ins.range<11, 7>());
-    int rs1 = to_unsigned(ins.range<19, 15>());
-    int rs2 = to_unsigned(ins.range<24, 20>());
+    int opcode = to_unsigned(from_memory_op);
+    int rds = to_unsigned(from_memory_rd);
+    int rs1 = to_unsigned(from_memory_rs1);
+    int rs2 = to_unsigned(from_memory_rs2);
     bool use1 = 1, use2 = 1, userd = 1;
     dest[i] <= des;
     pc[i] <= pc_wire;
     commited[i] <= 0;
-    if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
+    if (opcode == ADD) {
       // ADD
       op[i] <= ADD;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0100000) {
+    } else if (opcode == SUB) {
       // SUB
       op[i] <= SUB;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b111 && funct7 == 0b0000000) {
+    } else if (opcode == AND) {
       // AND
       op[i] <= AND;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b110 && funct7 == 0b0000000) {
+    } else if (opcode == OR) {
       // OR
       op[i] <= OR;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b100 && funct7 == 0b0000000) {
+    } else if (opcode == XOR) {
       // XOR
       op[i] <= XOR;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b001 && funct7 == 0b0000000) {
+    } else if (opcode == SLL) {
       // SLL
       op[i] <= SLL;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0000000) {
+    } else if (opcode == SRL) {
       // SRL
       op[i] <= SRL;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0100000) {
+    } else if (opcode == SRA) {
       // SRA
       op[i] <= SRA;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b010 && funct7 == 0b0000000) {
+    } else if (opcode == SLT) {
       // SLT
       op[i] <= SLT;
       time[i] <= 0;
-    } else if (opcode == 0b0110011 && funct3 == 0b011 && funct7 == 0b0000000) {
+    } else if (opcode == SLTU) {
       // SLTU
       op[i] <= SLTU;
       time[i] <= 0;
-    } else if (opcode == 0b0010011 && funct3 == 0b000) {
+    } else if (opcode == ADDI) {
       // ADDI
       op[i] <= ADDI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b111) {
+      a[i] <= from_memory_a;
+    } else if (opcode == ANDI) {
       // ANDI
       op[i] <= ANDI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b110) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == ORI) {
       // ORI
       op[i] <= ORI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b100) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == XORI) {
       // XORI
       op[i] <= XORI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b001 && funct7 == 0b0000000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SLLI) {
       // SLLI
       op[i] <= SLLI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_unsigned(ins.range<24, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0000000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SRLI) {
       // SRLI
       op[i] <= SRLI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_unsigned(ins.range<24, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0100000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SRAI) {
       // SRAI
       op[i] <= SRAI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_unsigned(ins.range<24, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b010) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SLTI) {
       // SLTI
       op[i] <= SLTI;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0010011 && funct3 == 0b011) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SLTIU) {
       // SLTIU
       op[i] <= SLTIU;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_unsigned(ins.range<31, 20>());
-    } else if (opcode == 0b0000011 && funct3 == 0b000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LB) {
       // LB
       op[i] <= LB;
       use2 = 0;
       time[i] <= 3;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0000011 && funct3 == 0b100) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LBU) {
       // LBU
       op[i] <= LBU;
       use2 = 0;
       time[i] <= 3;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0000011 && funct3 == 0b001) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LH) {
       // LH
       op[i] <= LH;
       use2 = 0;
       time[i] <= 3;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0000011 && funct3 == 0b101) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LHU) {
       // LHU
       op[i] <= LHU;
       use2 = 0;
       time[i] <= 3;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b0000011 && funct3 == 0b010) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LW) {
       // LW
       op[i] <= LW;
       use2 = 0;
       time[i] <= 3;
-      a[i] <= to_signed(ins.range<31, 20>());
+      a[i] <= from_memory_a;
+
       // std::cout << "lw,rd = " << rds
       //           << " ,rs1 = " << rs1 << " ,i = " << i
       //           << std::endl;
-    } else if (opcode == 0b0100011 && funct3 == 0b000) {
+    } else if (opcode == SB) {
       // SB
       op[i] <= SB;
       userd = 0;
       time[i] <= 3;
-      Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b0100011 && funct3 == 0b001) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SH) {
       // SH
       op[i] <= SH;
       userd = 0;
       time[i] <= 3;
-      Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b0100011 && funct3 == 0b010) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == SW) {
       // SW
       op[i] <= SW;
       userd = 0;
       time[i] <= 3;
-      Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BEQ) {
       // BEQ
       op[i] <= BEQ;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b101) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BGE) {
       // BGE
       op[i] <= BGE;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b111) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BGEU) {
       // BGEU
       op[i] <= BGEU;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b100) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BLT) {
       // BLT
       op[i] <= BLT;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b110) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BLTU) {
       // BLTU
       op[i] <= BLTU;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100011 && funct3 == 0b001) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == BNE) {
       // BNE
       op[i] <= BNE;
       userd = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b1100111 && funct3 == 0b000) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == JALR) {
       // JALR
       op[i] <= JALR;
       use2 = 0;
       time[i] <= 0;
-      a[i] <= to_signed(ins.range<31, 20>());
-    } else if (opcode == 0b1101111) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == JAL) {
       // JAL
       op[i] <= JAL;
       use1 = 0;
       use2 = 0;
       time[i] <= 0;
-      Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
-                 Bit<1>()};
-      a[i] <= to_signed(imm);
-    } else if (opcode == 0b0010111) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == AUIPC) {
       // AUIPC
       op[i] <= AUIPC;
       use1 = 0;
       use2 = 0;
       time[i] <= 0;
-      Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
-      a[i] <= to_signed(c);
-    } else if (opcode == 0b0110111) {
+      a[i] <= from_memory_a;
+
+    } else if (opcode == LUI) {
       // LUI
       op[i] <= LUI;
       use1 = 0;
       use2 = 0;
       time[i] <= 0;
-      Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
-      a[i] <= to_signed(c);
+      a[i] <= from_memory_a;
+
     } else {
       op[i] <= ELSE;
       use1 = 0;

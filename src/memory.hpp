@@ -6,7 +6,11 @@
 struct Memory {
   Wire<1> from_rs; // rs 有剩余
   Register<1> rs_get_out;
-  Register<32> to_rs_wire;
+  Register<32> to_rs_op;
+  Register<32> to_rs_rd;
+  Register<32> to_rs_rs1;
+  Register<32> to_rs_rs2;
+  Register<32> to_rs_a;
   dark::Register<32> pc;
   dark::Register<32> pc_past;
   dark::Register<32> reg;

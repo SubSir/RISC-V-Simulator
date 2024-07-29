@@ -15,7 +15,11 @@ int main() {
   cpu.add_module(&rob);
   rob.memory.initialize();
   rob.memory.from_rs = [&]() -> auto & { return rs.to_memory; };
-  rs.from_memory_wire = [&]() -> auto & { return rob.memory.to_rs_wire; };
+  rs.from_memory_op = [&]() -> auto & { return rob.memory.to_rs_op; };
+  rs.from_memory_rd = [&]() -> auto & { return rob.memory.to_rs_rd; };
+  rs.from_memory_rs1 = [&]() -> auto & { return rob.memory.to_rs_rs1; };
+  rs.from_memory_rs2 = [&]() -> auto & { return rob.memory.to_rs_rs2; };
+  rs.from_memory_a = [&]() -> auto & { return rob.memory.to_rs_a; };
   rs.pc_wire = [&]() -> auto & { return rob.memory.pc_past; };
   rs.from_rob = [&]() -> auto & { return rob.to_rs; };
   rob.rob_get_in = [&]() -> auto & { return rs.rob_get_out; };

@@ -10,7 +10,11 @@ struct RS_Input {
   Wire<1> from_rob; // 1 表示 rob 有空缺
   Wire<32> from_rob_wire_i;
   Wire<32> from_rob_wire_value;
-  Wire<32> from_memory_wire;
+  Wire<32> from_memory_op;
+  Wire<32> from_memory_rd;
+  Wire<32> from_memory_rs1;
+  Wire<32> from_memory_rs2;
+  Wire<32> from_memory_a;
   Wire<1> from_rob_wire_update;
   Wire<32> pc_wire;
   Wire<1> rs_get_in; // rs 获得了值设置为0
