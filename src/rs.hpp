@@ -3,7 +3,7 @@
 #include "register.h"
 #include "tools.h"
 #include <array>
-const int RS_SIZE = 1024;
+const int RS_SIZE = 512;
 struct RS_Input {
   Wire<1> rob_rs_get_in; // rs 获得了值设置为0
   Wire<1> rob_error;
