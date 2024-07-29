@@ -33,7 +33,7 @@ int main() {
   // rob.from_rs_wire_time = [&]() -> auto & { return rs.to_rob_wire_time; };
   // cpu.run(1000000, true);
   std::array<Bit<32>, 32> regs;
-  for (int o = 0; o < 2000000; o++) {
+  for (long long o = 0; o < 2000000000000000; o++) {
     regs[0] = 0;
     Bit<32> ins = rob.memory.read_a_word(to_unsigned(rob.memory.pc));
     int pc_change = 0;
