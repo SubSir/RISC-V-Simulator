@@ -37,203 +37,188 @@ int main() {
     regs[0] = 0;
     Bit<32> ins = rob.memory.read_a_word(to_unsigned(rob.memory.pc));
     int pc_change = 0;
-    Bit<7> funct7 = ins.range<31, 25>();
-    Bit<3> funct3 = ins.range<14, 12>();
-    Bit<7> opcode = ins.range<6, 0>();
-    Bit<5> rds = ins.range<11, 7>();
-    Bit<5> rs1 = ins.range<19, 15>();
-    Bit<5> rs2 = ins.range<24, 20>();
+    int funct7 = to_unsigned(ins.range<31, 25>());
+    int funct3 = to_unsigned(ins.range<14, 12>());
+    int opcode = to_unsigned(ins.range<6, 0>());
+    int rds = to_unsigned(ins.range<11, 7>());
+    int rs1 = to_unsigned(ins.range<19, 15>());
+    int rs2 = to_unsigned(ins.range<24, 20>());
     // cout << "PC: " << to_unsigned(rob.memory.pc) << endl << "         ";
     if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
       // ADD
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] + regs[to_unsigned(rs2)]);
+      regs[rds] = (regs[rs1] + regs[rs2]);
     } else if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0100000) {
       // SUB
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] - regs[to_unsigned(rs2)]);
+      regs[rds] = (regs[rs1] - regs[rs2]);
     } else if (opcode == 0b0110011 && funct3 == 0b111 && funct7 == 0b0000000) {
       // AND
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] & regs[to_unsigned(rs2)]);
+      regs[rds] = (regs[rs1] & regs[rs2]);
     } else if (opcode == 0b0110011 && funct3 == 0b110 && funct7 == 0b0000000) {
       // OR
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] | regs[to_unsigned(rs2)]);
+      regs[rds] = (regs[rs1] | regs[rs2]);
     } else if (opcode == 0b0110011 && funct3 == 0b100 && funct7 == 0b0000000) {
       // XOR
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] ^ regs[to_unsigned(rs2)]);
+      regs[rds] = (regs[rs1] ^ regs[rs2]);
     } else if (opcode == 0b0110011 && funct3 == 0b001 && funct7 == 0b0000000) {
       // SLL
-      Bit c = regs[to_unsigned(rs1)];
+      Bit c = regs[rs2];
       int shift = to_unsigned(c.range<4, 0>());
       int b = 0;
-      Bit<32> bb = to_unsigned(rs1);
+      Bit<32> bb = rs1;
       for (int i = shift; i < 32; i++) {
         b += (to_unsigned(bb[i - shift]) << i);
       }
-      regs[to_unsigned(rds)] = b;
+      regs[rds] = b;
     } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0000000) {
       // SRL
-      int shift = to_unsigned(regs[to_unsigned(rs2)]);
-      int b = 0;
-
-      Bit<32> bb = regs[to_unsigned(rs1)];
-      for (int i = 0; i < 32 - shift; i++) {
-        b += (to_unsigned(bb[i + shift]) << i);
-      }
-      regs[to_unsigned(rds)] = b;
-    } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0100000) {
-      // SRA
-      Bit c = regs[to_unsigned(rs2)];
+      Bit c = regs[rs2];
       int shift = to_unsigned(c.range<4, 0>());
       int b = 0;
 
-      Bit<32> bb = regs[to_unsigned(rs1)];
+      Bit<32> bb = regs[rs1];
+      for (int i = 0; i < 32 - shift; i++) {
+        b += (to_unsigned(bb[i + shift]) << i);
+      }
+      regs[rds] = b;
+    } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0100000) {
+      // SRA
+      Bit c = regs[rs2];
+      int shift = to_unsigned(c.range<4, 0>());
+      int b = 0;
+
+      Bit<32> bb = regs[rs1];
       for (int i = 0; i < 32 - shift; i++) {
         b += (to_unsigned(bb[i + shift]) << i);
       }
       for (int i = 32 - shift; i < 32; i++) {
         b += (to_unsigned(bb[31]) << i);
       }
-      regs[to_unsigned(rds)] = b;
+      regs[rds] = b;
     } else if (opcode == 0b0110011 && funct3 == 0b010 && funct7 == 0b0000000) {
       // SLT
-      regs[to_unsigned(rds)] = (to_signed(regs[to_unsigned(rs1)]) <
-                                to_signed(regs[to_unsigned(rs2)]));
+      regs[rds] = (to_signed(regs[rs1]) < to_signed(regs[rs2]));
     } else if (opcode == 0b0110011 && funct3 == 0b011 && funct7 == 0b0000000) {
       // SLTU
-      regs[to_unsigned(rds)] = (to_unsigned(regs[to_unsigned(rs1)]) <
-                                to_unsigned(regs[to_unsigned(rs2)]));
+      regs[rds] = (to_unsigned(regs[rs1]) < to_unsigned(regs[rs2]));
     } else if (opcode == 0b0010011 && funct3 == 0b000) {
-      if (to_unsigned(rds) == 10 && to_unsigned(regs[to_unsigned(rs1)]) == 0 &&
+      if (rds == 10 && to_unsigned(regs[rs1]) == 0 &&
           to_signed(ins.range<31, 20>()) == 255) {
         Bit a = regs[10];
         std::cout << std::dec << to_unsigned(a.range<7, 0>()) << std::endl;
         exit(0);
       }
       // ADDI
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>()));
-      // cout << "ADDI, " << to_unsigned(rs1) << '+' << " "
+      regs[rds] = (regs[rs1] + to_signed(ins.range<31, 20>()));
+      // cout << "ADDI, " << rs1 << '+' << " "
       // << to_signed(ins.range<31, 20>()) << endl;
     } else if (opcode == 0b0010011 && funct3 == 0b111) {
       // ANDI
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] & to_signed(ins.range<31, 20>()));
+      regs[rds] = (regs[rs1] & to_signed(ins.range<31, 20>()));
     } else if (opcode == 0b0010011 && funct3 == 0b110) {
       // ORI
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] | to_signed(ins.range<31, 20>()));
+      regs[rds] = (regs[rs1] | to_signed(ins.range<31, 20>()));
     } else if (opcode == 0b0010011 && funct3 == 0b100) {
       // XORI
-      regs[to_unsigned(rds)] =
-          (regs[to_unsigned(rs1)] ^ to_signed(ins.range<31, 20>()));
-      // cout << "XORI, " << to_unsigned(rs1) << '^' << " "
+      regs[rds] = (regs[rs1] ^ to_signed(ins.range<31, 20>()));
+      // cout << "XORI, " << rs1 << '^' << " "
       // << to_signed(ins.range<31, 20>()) << endl;
     } else if (opcode == 0b0010011 && funct3 == 0b001 && funct7 == 0b0000000) {
       // SLLI
       if (to_unsigned(ins[24]) == 0) {
         int shift = to_unsigned(ins.range<24, 20>());
         int b = 0;
-        Bit<32> bb = regs[to_unsigned(rs1)];
+        Bit<32> bb = regs[rs1];
         for (int i = shift; i < 32; i++) {
           b += (to_unsigned(bb[i - shift]) << i);
         }
-        regs[to_unsigned(rds)] = b;
+        regs[rds] = b;
       }
     } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0000000) {
       // SRLI
       int shift = to_unsigned(ins.range<24, 20>());
       int b = 0;
 
-      Bit<32> bb = regs[to_unsigned(rs1)];
+      Bit<32> bb = regs[rs1];
       for (int i = 0; i < 32 - shift; i++) {
         b += (to_unsigned(bb[i + shift]) << i);
       }
-      regs[to_unsigned(rds)] = b;
+      regs[rds] = b;
     } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0100000) {
       // SRAI
       if (to_unsigned(ins[24]) == 0) {
         int shift = to_unsigned(ins.range<24, 20>());
         int b = 0;
 
-        Bit<32> bb = regs[to_unsigned(rs1)];
+        Bit<32> bb = regs[rs1];
         for (int i = 0; i < 32 - shift; i++) {
           b += (to_unsigned(bb[i + shift]) << i);
         }
         for (int i = 32 - shift; i < 32; i++) {
           b += (to_unsigned(bb[31]) << i);
         }
-        regs[to_unsigned(rds)] = b;
+        regs[rds] = b;
       }
     } else if (opcode == 0b0010011 && funct3 == 0b010) {
       // SLTI
-      regs[to_unsigned(rds)] =
-          (to_signed(regs[to_unsigned(rs1)]) < to_signed(ins.range<31, 20>()));
+      regs[rds] = (to_signed(regs[rs1]) < to_signed(ins.range<31, 20>()));
     } else if (opcode == 0b0010011 && funct3 == 0b011) {
       // SLTIU
-      regs[to_unsigned(rds)] = (to_unsigned(regs[to_unsigned(rs1)]) <
-                                to_unsigned(ins.range<31, 20>()));
+      regs[rds] = (to_unsigned(regs[rs1]) < to_unsigned(ins.range<31, 20>()));
     } else if (opcode == 0b0000011 && funct3 == 0b000) {
       // LB
       Bit b = rob.memory.read_byte(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
-      regs[to_unsigned(rds)] = to_signed(b);
+          to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>())));
+      regs[rds] = to_signed(b);
     } else if (opcode == 0b0000011 && funct3 == 0b100) {
       // LBU
       Bit b = rob.memory.read_byte(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
-      regs[to_unsigned(rds)] = to_unsigned(b);
+          to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>())));
+      regs[rds] = to_unsigned(b);
     } else if (opcode == 0b0000011 && funct3 == 0b001) {
       // LH
       Bit b = rob.memory.read_half_word(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
+          to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>())));
 
-      regs[to_unsigned(rds)] = to_signed(b);
+      regs[rds] = to_signed(b);
     } else if (opcode == 0b0000011 && funct3 == 0b101) {
       // LHU
       Bit b = rob.memory.read_half_word(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
+          to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>())));
 
-      regs[to_unsigned(rds)] = to_unsigned(b);
+      regs[rds] = to_unsigned(b);
     } else if (opcode == 0b0000011 && funct3 == 0b010) {
       // LW
       Bit b = rob.memory.read_a_word(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
+          to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>())));
       // cout << "LW, "
-      // << to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>()))
-      // << " " << to_unsigned(rds) << " : " << to_signed(b) << endl;
-      regs[to_unsigned(rds)] = to_signed(b);
+      // << to_unsigned(regs[rs1] + to_signed(ins.range<31, 20>()))
+      // << " " << rds << " : " << to_signed(b) << endl;
+      regs[rds] = to_signed(b);
     } else if (opcode == 0b0100011 && funct3 == 0b000) {
       // SB
-      Bit<32> b = regs[to_unsigned(rs2)];
+      Bit<32> b = regs[rs2];
       Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      rob.memory.store_byte(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)),
-          b.range<7, 0>());
+      rob.memory.store_byte(to_unsigned(regs[rs1] + to_signed(imm)),
+                            b.range<7, 0>());
     } else if (opcode == 0b0100011 && funct3 == 0b001) {
       // SH
-      Bit<32> b = regs[to_unsigned(rs2)];
+      Bit<32> b = regs[rs2];
       Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      rob.memory.store_half_word(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)),
-          b.range<15, 0>());
+      rob.memory.store_half_word(to_unsigned(regs[rs1] + to_signed(imm)),
+                                 b.range<15, 0>());
     } else if (opcode == 0b0100011 && funct3 == 0b010) {
       // SW
-      Bit<32> b = regs[to_unsigned(rs2)];
+      Bit<32> b = regs[rs2];
       Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
-      rob.memory.store_a_word(
-          to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)), b);
+      rob.memory.store_a_word(to_unsigned(regs[rs1] + to_signed(imm)), b);
       // cout << "SW, " << hex
-      // << to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)) << " : "
+      // << to_unsigned(regs[rs1] + to_signed(imm)) << " : "
       // << to_signed(b) << endl;
     } else if (opcode == 0b1100011 && funct3 == 0b000) {
       // BEQ
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (regs[to_unsigned(rs1)] == regs[to_unsigned(rs2)]) {
+      if (regs[rs1] == regs[rs2]) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
@@ -241,8 +226,7 @@ int main() {
       // BGE
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (to_signed(regs[to_unsigned(rs1)]) >=
-          to_signed(regs[to_unsigned(rs2)])) {
+      if (to_signed(regs[rs1]) >= to_signed(regs[rs2])) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
@@ -250,8 +234,7 @@ int main() {
       // BGEU
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (to_unsigned(regs[to_unsigned(rs1)]) >=
-          to_unsigned(regs[to_unsigned(rs2)])) {
+      if (to_unsigned(regs[rs1]) >= to_unsigned(regs[rs2])) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
@@ -259,8 +242,7 @@ int main() {
       // BLT
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (to_signed(regs[to_unsigned(rs1)]) <
-          to_signed(regs[to_unsigned(rs2)])) {
+      if (to_signed(regs[rs1]) < to_signed(regs[rs2])) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
@@ -268,8 +250,7 @@ int main() {
       // BLTU
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (to_unsigned(regs[to_unsigned(rs1)]) <
-          to_unsigned(regs[to_unsigned(rs2)])) {
+      if (to_unsigned(regs[rs1]) < to_unsigned(regs[rs2])) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
@@ -277,14 +258,14 @@ int main() {
       // BNE
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                  Bit<1>()};
-      if (regs[to_unsigned(rs1)] != regs[to_unsigned(rs2)]) {
+      if (regs[rs1] != regs[rs2]) {
         rob.memory.pc = rob.memory.pc + to_signed(imm);
         pc_change = 1;
       }
     } else if (opcode == 0b1100111 && funct3 == 0b000) {
       // JALR
-      regs[to_unsigned(rds)] = to_unsigned(rob.memory.pc) + 4;
-      rob.memory.pc = regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>());
+      regs[rds] = to_unsigned(rob.memory.pc) + 4;
+      rob.memory.pc = regs[rs1] + to_signed(ins.range<31, 20>());
       rob.memory.pc[0] = 0;
       pc_change = 1;
       // cout << "JALR, " << hex << to_signed(rob.memory.pc) << endl;
@@ -292,7 +273,7 @@ int main() {
       // JAL
       Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
                  Bit<1>()};
-      regs[to_unsigned(rds)] = to_unsigned(rob.memory.pc) + 4;
+      regs[rds] = to_unsigned(rob.memory.pc) + 4;
       rob.memory.pc = rob.memory.pc + to_signed(imm);
       pc_change = 1;
       // cout << "JAL, " << hex << to_signed(rob.memory.pc) << endl;
@@ -300,12 +281,12 @@ int main() {
       // AUIPC
       Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
       Bit<32> b = to_signed(c);
-      regs[to_unsigned(rds)] = to_unsigned(rob.memory.pc) + b;
+      regs[rds] = to_unsigned(rob.memory.pc) + b;
     } else if (opcode == 0b0110111) {
       // LUI
       Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
       Bit<32> b = to_signed(c);
-      regs[to_unsigned(rds)] = b;
+      regs[rds] = b;
       // cout << "LUI, " << to_signed(b) << endl;
     } else {
       // cout << "error" << endl;

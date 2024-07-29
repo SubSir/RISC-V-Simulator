@@ -16,7 +16,7 @@ struct Memory {
   Bit<32> read_a_word(int address);
   Bit<16> read_half_word(int address);
   Bit<8> read_byte(int address);
-  void store_a_word(int address, Bit<32> value);
-  void store_half_word(int address, Bit<16> value);
-  void store_byte(int address, Bit<8> value);
+  void store_a_word(int address, const Bit<32> &value);
+  void store_half_word(int address, const Bit<16> &value);
+  void store_byte(int address, const Bit<8> &value);
 };
