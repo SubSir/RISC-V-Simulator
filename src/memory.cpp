@@ -5,11 +5,11 @@
 #include <sstream>
 #include <string>
 
-void Memory::initialize(std::fstream &file) {
+void Memory::initialize() {
   int pointer = 0;
-  while (!file.eof()) {
+  while (!std::cin.eof()) {
     std::string line;
-    file >> line;
+    std::cin >> line;
     if (line[0] == '@') {
       pointer = std::stoi(line.substr(1, line.length() - 1), nullptr, 16);
     } else {

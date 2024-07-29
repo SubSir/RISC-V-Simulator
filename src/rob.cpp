@@ -45,35 +45,34 @@ void RoB::work() {
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLL) {
         int shift = to_unsigned(rs2[head]);
-        int b = 0;
-        Bit<32> bb = rs1[head];
-        for (int i = shift; i < 32; i++) {
-          b += (to_unsigned(bb[i - shift]) << i);
+        int d = to_unsigned(rs1[head]);
+        int b = d << shift;
+        if (shift > 31) {
+          b = 0;
         }
         to_rs_wire_value <= b;
         std::cout << "SLL " << to_unsigned(rs1[head]) << " << "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRA) {
         int shift = to_unsigned(rs2[head]);
-        int b = 0;
-
-        Bit<32> bb = rs1[head];
-        for (int i = 0; i < 32 - shift; i++) {
-          b += (to_unsigned(bb[i + shift]) << i);
-        }
-        for (int i = 32 - shift; i < 32; i++) {
-          b += (to_unsigned(bb[31]) << i);
+        int d = to_unsigned(rs1[head]);
+        int b = d >> shift;
+        if (shift > 31) {
+          if (d < 0) {
+            b = 0xffffffff;
+          } else {
+            b = 0;
+          }
         }
         to_rs_wire_value <= b;
         std::cout << "SRA " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRL) {
         int shift = to_unsigned(rs2[head]);
-        int b = 0;
-
-        Bit<32> bb = rs1[head];
-        for (int i = 0; i < 32 - shift; i++) {
-          b += (to_unsigned(bb[i + shift]) << i);
+        unsigned int d = to_unsigned(rs1[head]);
+        int b = d >> shift;
+        if (shift > 31) {
+          b = 0;
         }
         to_rs_wire_value <= b;
         std::cout << "SRL " << to_unsigned(rs1[head]) << " >> "
@@ -104,35 +103,34 @@ void RoB::work() {
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SLLI) {
         int shift = to_unsigned(a[head]);
-        int b = 0;
-        Bit<32> bb = rs1[head];
-        for (int i = shift; i < 32; i++) {
-          b += (to_unsigned(bb[i - shift]) << i);
+        int c = to_unsigned(rs1[head]);
+        int b = c << shift;
+        if (shift > 31) {
+          b = 0;
         }
         to_rs_wire_value <= b;
         std::cout << "SLLI " << to_unsigned(rs1[head]) << " << "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SRLI) {
         int shift = to_unsigned(a[head]);
-        int b = 0;
-
-        Bit<32> bb = rs1[head];
-        for (int i = 0; i < 32 - shift; i++) {
-          b += (to_unsigned(bb[i + shift]) << i);
+        unsigned int c = to_unsigned(rs1[head]);
+        int b = c >> shift;
+        if (shift > 31) {
+          b = 0;
         }
         to_rs_wire_value <= b;
         std::cout << "SRLI " << to_unsigned(rs1[head]) << " >> "
                   << to_unsigned(a[head]) << std::endl;
       } else if (op[head] == SRAI) {
         int shift = to_unsigned(a[head]);
-        int b = 0;
-
-        Bit<32> bb = rs1[head];
-        for (int i = 0; i < 32 - shift; i++) {
-          b += (to_unsigned(bb[i + shift]) << i);
-        }
-        for (int i = 32 - shift; i < 32; i++) {
-          b += (to_unsigned(bb[31]) << i);
+        int c = to_unsigned(rs1[head]);
+        int b = c >> shift;
+        if (shift > 31) {
+          if (c < 0) {
+            b = 0xffffffff;
+          } else {
+            b = 0;
+          }
         }
         to_rs_wire_value <= b;
         std::cout << "SRAI " << to_unsigned(rs1[head]) << " >> "

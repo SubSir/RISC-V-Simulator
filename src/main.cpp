@@ -13,12 +13,7 @@ int main() {
   RoB rob;
   cpu.add_module(&rs);
   cpu.add_module(&rob);
-  fstream f("input.txt");
-  if (!f.is_open()) {
-    cout << "File not found!";
-    return 0;
-  }
-  rob.memory.initialize(f);
+  rob.memory.initialize();
   rob.memory.from_rs = [&]() -> auto & { return rs.to_memory; };
   rs.from_memory_wire = [&]() -> auto & { return rob.memory.to_rs_wire; };
   rs.pc_wire = [&]() -> auto & { return rob.memory.pc_past; };
@@ -37,5 +32,5 @@ int main() {
   rob.from_rs_wire_rs1 = [&]() -> auto & { return rs.to_rob_wire_rs1; };
   rob.from_rs_wire_rs2 = [&]() -> auto & { return rs.to_rob_wire_rs2; };
   rob.from_rs_wire_time = [&]() -> auto & { return rs.to_rob_wire_time; };
-  cpu.run(1000000, true);
+  cpu.run(20000000000, true);
 }

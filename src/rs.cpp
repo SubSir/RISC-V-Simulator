@@ -63,12 +63,12 @@ void RS::work() {
         busy[i] <= 1;
         tmp = i;
         Bit<32> ins = from_memory_wire;
-        Bit<7> funct7 = ins.range<31, 25>();
-        Bit<3> funct3 = ins.range<14, 12>();
-        Bit<7> opcode = ins.range<6, 0>();
-        Bit<5> rds = ins.range<11, 7>();
-        Bit<5> rs1 = ins.range<19, 15>();
-        Bit<5> rs2 = ins.range<24, 20>();
+        int funct7 = to_unsigned(ins.range<31, 25>());
+        int funct3 = to_unsigned(ins.range<14, 12>());
+        int opcode = to_unsigned(ins.range<6, 0>());
+        int rds = to_unsigned(ins.range<11, 7>());
+        int rs1 = to_unsigned(ins.range<19, 15>());
+        int rs2 = to_unsigned(ins.range<24, 20>());
         bool use1 = 1, use2 = 1, userd = 1;
         dest[i] <= des;
         pc[i] <= pc_wire;
@@ -209,8 +209,8 @@ void RS::work() {
           use2 = 0;
           time[i] <= 3;
           a[i] <= to_signed(ins.range<31, 20>());
-          // std::cout << "lw,rd = " << to_unsigned(rds)
-          //           << " ,rs1 = " << to_unsigned(rs1) << " ,i = " << i
+          // std::cout << "lw,rd = " << rds
+          //           << " ,rs1 = " << rs1 << " ,i = " << i
           //           << std::endl;
         } else if (opcode == 0b0100011 && funct3 == 0b000) {
           // SB
@@ -320,39 +320,37 @@ void RS::work() {
           rds = 33;
           time[i] <= 0;
         }
-        if (use1 &&
-            (reorder_busy[to_unsigned(rs1)] && free_rd != to_unsigned(rs1))) {
+        if (use1 && (reorder_busy[rs1] && free_rd != rs1)) {
           vj[i] <= 0;
-          qj[i] <= reorder[to_unsigned(rs1)];
-        } else if (use1 && free_rd == to_unsigned(rs1)) {
+          qj[i] <= reorder[rs1];
+        } else if (use1 && free_rd == rs1) {
           vj[i] <= free_rd_value;
           qj[i] <= 0;
         } else if (use1) {
-          vj[i] <= regs[to_unsigned(rs1)];
+          vj[i] <= regs[rs1];
           qj[i] <= 0;
         } else {
           vj[i] <= 0;
           qj[i] <= 0;
         }
-        if (use2 &&
-            (reorder_busy[to_unsigned(rs2)] && free_rd != to_unsigned(rs2))) {
+        if (use2 && (reorder_busy[rs2] && free_rd != rs2)) {
           vk[i] <= 0;
-          qk[i] <= reorder[to_unsigned(rs2)];
-        } else if (use2 && free_rd == to_unsigned(rs2)) {
+          qk[i] <= reorder[rs2];
+        } else if (use2 && free_rd == rs2) {
           vk[i] <= free_rd_value;
           qk[i] <= 0;
         } else if (use2) {
-          vk[i] <= regs[to_unsigned(rs2)];
+          vk[i] <= regs[rs2];
           qk[i] <= 0;
         } else {
           vk[i] <= 0;
           qk[i] <= 0;
         }
         if (userd) {
-          reorder_busy[to_unsigned(rds)] <= 1;
-          reorder[to_unsigned(rds)] <= des;
-          rd[i] <= to_unsigned(rds);
-          if (to_unsigned(rds) == free_rd) {
+          reorder_busy[rds] <= 1;
+          reorder[rds] <= des;
+          rd[i] <= rds;
+          if (rds == free_rd) {
             twice = 1;
           }
         } else {
