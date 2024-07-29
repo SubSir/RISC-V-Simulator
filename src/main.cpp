@@ -63,35 +63,34 @@ int main() {
       // SLL
       Bit c = regs[rs2];
       int shift = to_unsigned(c.range<4, 0>());
-      int b = 0;
-      Bit<32> bb = rs1;
-      for (int i = shift; i < 32; i++) {
-        b += (to_unsigned(bb[i - shift]) << i);
+      int d = to_unsigned(regs[rs1]);
+      int b = d << shift;
+      if (shift > 31) {
+        b = 0;
       }
       regs[rds] = b;
     } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0000000) {
       // SRL
       Bit c = regs[rs2];
       int shift = to_unsigned(c.range<4, 0>());
-      int b = 0;
-
-      Bit<32> bb = regs[rs1];
-      for (int i = 0; i < 32 - shift; i++) {
-        b += (to_unsigned(bb[i + shift]) << i);
+      unsigned int d = to_unsigned(regs[rs1]);
+      int b = d >> shift;
+      if (shift > 31) {
+        b = 0;
       }
       regs[rds] = b;
     } else if (opcode == 0b0110011 && funct3 == 0b101 && funct7 == 0b0100000) {
       // SRA
       Bit c = regs[rs2];
       int shift = to_unsigned(c.range<4, 0>());
-      int b = 0;
-
-      Bit<32> bb = regs[rs1];
-      for (int i = 0; i < 32 - shift; i++) {
-        b += (to_unsigned(bb[i + shift]) << i);
-      }
-      for (int i = 32 - shift; i < 32; i++) {
-        b += (to_unsigned(bb[31]) << i);
+      int d = to_unsigned(regs[rs1]);
+      int b = d >> shift;
+      if (shift > 31) {
+        if (c < 0) {
+          b = 0xffffffff;
+        } else {
+          b = 0;
+        }
       }
       regs[rds] = b;
     } else if (opcode == 0b0110011 && funct3 == 0b010 && funct7 == 0b0000000) {
@@ -124,40 +123,41 @@ int main() {
       // << to_signed(ins.range<31, 20>()) << endl;
     } else if (opcode == 0b0010011 && funct3 == 0b001 && funct7 == 0b0000000) {
       // SLLI
-      if (to_unsigned(ins[24]) == 0) {
-        int shift = to_unsigned(ins.range<24, 20>());
-        int b = 0;
-        Bit<32> bb = regs[rs1];
-        for (int i = shift; i < 32; i++) {
-          b += (to_unsigned(bb[i - shift]) << i);
-        }
-        regs[rds] = b;
-      }
-    } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0000000) {
-      // SRLI
+      // if (to_unsigned(ins[24]) == 0) {
       int shift = to_unsigned(ins.range<24, 20>());
-      int b = 0;
-
-      Bit<32> bb = regs[rs1];
-      for (int i = 0; i < 32 - shift; i++) {
-        b += (to_unsigned(bb[i + shift]) << i);
+      int c = to_unsigned(regs[rs1]);
+      int b = c << shift;
+      if (shift > 31) {
+        b = 0;
       }
       regs[rds] = b;
+      // }
+    } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0000000) {
+      // SRLI
+      // if (to_unsigned(ins[24]) == 0) {
+      int shift = to_unsigned(ins.range<24, 20>());
+      unsigned int c = to_unsigned(regs[rs1]);
+      int b = c >> shift;
+      if (shift > 31) {
+        b = 0;
+      }
+      regs[rds] = b;
+      // }
     } else if (opcode == 0b0010011 && funct3 == 0b101 && funct7 == 0b0100000) {
       // SRAI
-      if (to_unsigned(ins[24]) == 0) {
-        int shift = to_unsigned(ins.range<24, 20>());
-        int b = 0;
-
-        Bit<32> bb = regs[rs1];
-        for (int i = 0; i < 32 - shift; i++) {
-          b += (to_unsigned(bb[i + shift]) << i);
+      // if (to_unsigned(ins[24]) == 0) {
+      int shift = to_unsigned(ins.range<24, 20>());
+      int c = to_unsigned(regs[rs1]);
+      int b = c >> shift;
+      if (shift > 31) {
+        if (c < 0) {
+          b = 0xffffffff;
+        } else {
+          b = 0;
         }
-        for (int i = 32 - shift; i < 32; i++) {
-          b += (to_unsigned(bb[31]) << i);
-        }
-        regs[rds] = b;
       }
+      regs[rds] = b;
+      // }
     } else if (opcode == 0b0010011 && funct3 == 0b010) {
       // SLTI
       regs[rds] = (to_signed(regs[rs1]) < to_signed(ins.range<31, 20>()));
