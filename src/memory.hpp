@@ -11,7 +11,7 @@ struct Memory {
   // dark::Register<32> pc_past;
   // dark::Register<32> reg;
   std::array<dark::Bit<8>, 0x31000> mem;
-  void initialize(std::fstream &file);
+  void initialize();
   // void work();
   Bit<32> read_a_word(int address);
   Bit<16> read_half_word(int address);

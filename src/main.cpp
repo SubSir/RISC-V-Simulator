@@ -12,12 +12,7 @@ int main() {
   RoB rob;
   // cpu.add_module(&rs);
   // cpu.add_module(&rob);
-  fstream f("input.txt");
-  if (!f.is_open()) {
-    cout << "File not found!";
-    return 0;
-  }
-  rob.memory.initialize(f);
+  rob.memory.initialize();
   // rob.memory.from_rs = [&]() -> auto & { return rs.to_memory; };
   // rs.from_memory_wire = [&]() -> auto & { return rob.memory.to_rs_wire; };
   // rs.pc_wire = [&]() -> auto & { return rob.memory.pc_past; };
@@ -48,7 +43,7 @@ int main() {
     Bit<5> rds = ins.range<11, 7>();
     Bit<5> rs1 = ins.range<19, 15>();
     Bit<5> rs2 = ins.range<24, 20>();
-    cout << "PC: " << to_unsigned(rob.memory.pc) << endl << "         ";
+    // cout << "PC: " << to_unsigned(rob.memory.pc) << endl << "         ";
     if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
       // ADD
       regs[to_unsigned(rds)] =
@@ -121,8 +116,8 @@ int main() {
       // ADDI
       regs[to_unsigned(rds)] =
           (regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>()));
-      cout << "ADDI, " << to_unsigned(rs1) << '+' << " "
-           << to_signed(ins.range<31, 20>()) << endl;
+      // cout << "ADDI, " << to_unsigned(rs1) << '+' << " "
+      // << to_signed(ins.range<31, 20>()) << endl;
     } else if (opcode == 0b0010011 && funct3 == 0b111) {
       // ANDI
       regs[to_unsigned(rds)] =
@@ -135,8 +130,8 @@ int main() {
       // XORI
       regs[to_unsigned(rds)] =
           (regs[to_unsigned(rs1)] ^ to_signed(ins.range<31, 20>()));
-      cout << "XORI, " << to_unsigned(rs1) << '^' << " "
-           << to_signed(ins.range<31, 20>()) << endl;
+      // cout << "XORI, " << to_unsigned(rs1) << '^' << " "
+      // << to_signed(ins.range<31, 20>()) << endl;
     } else if (opcode == 0b0010011 && funct3 == 0b001 && funct7 == 0b0000000) {
       // SLLI
       if (to_unsigned(ins[24]) == 0) {
@@ -207,10 +202,9 @@ int main() {
       // LW
       Bit b = rob.memory.read_a_word(
           to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>())));
-      cout << "LW, "
-           << to_unsigned(regs[to_unsigned(rs1)] +
-                          to_signed(ins.range<31, 20>()))
-           << " " << to_unsigned(rds) << " : " << to_signed(b) << endl;
+      // cout << "LW, "
+      // << to_unsigned(regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>()))
+      // << " " << to_unsigned(rds) << " : " << to_signed(b) << endl;
       regs[to_unsigned(rds)] = to_signed(b);
     } else if (opcode == 0b0100011 && funct3 == 0b000) {
       // SB
@@ -232,9 +226,9 @@ int main() {
       Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
       rob.memory.store_a_word(
           to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)), b);
-      cout << "SW, " << hex
-           << to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)) << " : "
-           << to_signed(b) << endl;
+      // cout << "SW, " << hex
+      // << to_unsigned(regs[to_unsigned(rs1)] + to_signed(imm)) << " : "
+      // << to_signed(b) << endl;
     } else if (opcode == 0b1100011 && funct3 == 0b000) {
       // BEQ
       Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
@@ -293,7 +287,7 @@ int main() {
       rob.memory.pc = regs[to_unsigned(rs1)] + to_signed(ins.range<31, 20>());
       rob.memory.pc[0] = 0;
       pc_change = 1;
-      cout << "JALR, " << hex << to_signed(rob.memory.pc) << endl;
+      // cout << "JALR, " << hex << to_signed(rob.memory.pc) << endl;
     } else if (opcode == 0b1101111) {
       // JAL
       Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
@@ -301,7 +295,7 @@ int main() {
       regs[to_unsigned(rds)] = to_unsigned(rob.memory.pc) + 4;
       rob.memory.pc = rob.memory.pc + to_signed(imm);
       pc_change = 1;
-      cout << "JAL, " << hex << to_signed(rob.memory.pc) << endl;
+      // cout << "JAL, " << hex << to_signed(rob.memory.pc) << endl;
     } else if (opcode == 0b0010111) {
       // AUIPC
       Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
@@ -312,17 +306,17 @@ int main() {
       Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
       Bit<32> b = to_signed(c);
       regs[to_unsigned(rds)] = b;
-      cout << "LUI, " << to_signed(b) << endl;
+      // cout << "LUI, " << to_signed(b) << endl;
     } else {
-      cout << "error" << endl;
+      // cout << "error" << endl;
     }
     if (!pc_change) {
       rob.memory.pc = rob.memory.pc + 4;
     }
-    for (int i = 0; i < 17; i++) {
-      std::cout << "REG " << dec << i << ": " << hex << to_signed(regs[i])
-                << ", ";
-    }
-    std::cout << endl;
+    // for (int i = 0; i < 17; i++) {
+    //   std::cout << "REG " << dec << i << ": " << hex << to_signed(regs[i])
+    //             << ", ";
+    // }
+    // std::cout << endl;
   }
 }
