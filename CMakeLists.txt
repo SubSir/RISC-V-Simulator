@@ -7,6 +7,6 @@ file(GLOB_RECURSE sources "src/*.cpp")
 
 include_directories(include)
 
-add_executable(modules ${sources})
+add_executable(code ${sources})
 
-target_compile_definitions(modules PRIVATE _DEBUG)
+target_compile_definitions(code PRIVATE _DEBUG)
