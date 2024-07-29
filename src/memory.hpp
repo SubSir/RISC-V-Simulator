@@ -4,7 +4,7 @@
 #include "synchronize.h"
 #include <fstream>
 struct Memory {
-  Wire<1> from_rs; // rs 有剩余
+  // Wire<1> from_rs; // rs 有剩余
   // Register<1> rs_get_out;
   // Register<32> to_rs_wire;
   dark::Bit<32> pc;
