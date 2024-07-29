@@ -38,12 +38,11 @@ struct RoB_Private {
   std::array<dark::Register<32>, ROB_SIZE> a;
   Memory memory;
 };
-struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
+struct RoB {
   // Wire<1> memory_get; // memory 获得了值设置为0
   // Wire<32> to_memory_wire_op;
   // Wire<32> to_memory_wire_address;
   // Wire<32> to_memory_wire_value;
-  using RoB_Private::memory;
+  Memory memory;
   int terms = 0;
-  void work() override final;
 };

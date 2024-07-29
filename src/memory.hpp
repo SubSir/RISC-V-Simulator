@@ -5,14 +5,14 @@
 #include <fstream>
 struct Memory {
   Wire<1> from_rs; // rs 有剩余
-  Register<1> rs_get_out;
-  Register<32> to_rs_wire;
-  dark::Register<32> pc;
-  dark::Register<32> pc_past;
-  dark::Register<32> reg;
-  std::array<dark::Register<8>, 0x31000> mem;
+  // Register<1> rs_get_out;
+  // Register<32> to_rs_wire;
+  dark::Bit<32> pc;
+  // dark::Register<32> pc_past;
+  // dark::Register<32> reg;
+  std::array<dark::Bit<8>, 0x31000> mem;
   void initialize(std::fstream &file);
-  void work();
+  // void work();
   Bit<32> read_a_word(int address);
   Bit<16> read_half_word(int address);
   Bit<8> read_byte(int address);

@@ -17,23 +17,23 @@ void Memory::initialize(std::fstream &file) {
       ss << std::hex << line;
       unsigned int bit;
       ss >> bit;
-      mem[pointer++] <= bit;
+      mem[pointer++] = bit;
     }
   }
 }
 
-void Memory::work() {
-  pc_past <= pc;
-  if (from_rs) {
-    if (pc < mem.size()) {
-      // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
-      to_rs_wire <= read_a_word(to_unsigned(pc));
-      rs_get_out <= 1;
-      return;
-    }
-  }
-  rs_get_out <= 0;
-}
+// void Memory::work() {
+//   pc_past <= pc;
+//   if (from_rs) {
+//     if (pc < mem.size()) {
+//       // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
+//       to_rs_wire <= read_a_word(to_unsigned(pc));
+//       rs_get_out <= 1;
+//       return;
+//     }
+//   }
+//   rs_get_out <= 0;
+// }
 
 Bit<8> Memory::read_byte(int address) {
   if (address >= mem.size()) {
@@ -72,7 +72,7 @@ void Memory::store_byte(int address, Bit<8> value) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value;
+  mem[address] = value;
 }
 
 void Memory::store_half_word(int address, Bit<16> value) {
@@ -80,8 +80,8 @@ void Memory::store_half_word(int address, Bit<16> value) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value.range<7, 0>();
-  mem[address + 1] <= value.range<15, 8>();
+  mem[address] = value.range<7, 0>();
+  mem[address + 1] = value.range<15, 8>();
 }
 
 void Memory::store_a_word(int address, Bit<32> value) {
@@ -89,8 +89,8 @@ void Memory::store_a_word(int address, Bit<32> value) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value.range<7, 0>();
-  mem[address + 1] <= value.range<15, 8>();
-  mem[address + 2] <= value.range<23, 16>();
-  mem[address + 3] <= value.range<31, 24>();
+  mem[address] = value.range<7, 0>();
+  mem[address + 1] = value.range<15, 8>();
+  mem[address + 2] = value.range<23, 16>();
+  mem[address + 3] = value.range<31, 24>();
 }
