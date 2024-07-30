@@ -21,7 +21,7 @@ void RoB::work() {
       head_twice = 1;
       pos_shift = 1;
       to_rs_flag = 1;
-      // std::cout << "PC = " << to_unsigned(pc[head]) << ' ';
+      // std::cout << "PC = " << to_unsigned(pc[head]) << '\n';
       if (op[head] == ADD) {
         to_rs_wire_value <= (rs1[head] + rs2[head]);
         // std::cout << "ADD " << to_unsigned(rs1[head]) << " + "

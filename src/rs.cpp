@@ -10,7 +10,6 @@ void RS::work() {
   if (rob_rs_get_in) {
     int order = to_unsigned(from_rob_wire_i);
     if (rob_error == 0) {
-      head <= order;
       busy[order] <= 0;
     }
     if (from_rob_wire_update) {
@@ -24,7 +23,7 @@ void RS::work() {
       }
       // std::cout << "         " << to_unsigned(rd[order]) << " : "
       // << to_signed(value) << std::endl;
-      for (int i = to_unsigned(head); i < to_unsigned(pos) + 2; i++) {
+      for (int i = 0; i < pos + 2; i++) {
         if (busy[i] && qj[i] == dest[order]) {
           qj[i] <= 0;
           vj[i] <= value;
@@ -46,9 +45,8 @@ void RS::work() {
   }
   if (rob_error) {
     rob_get_out <= 0;
-    head <= 0;
     pos <= 0;
-    for (int i = to_unsigned(head); i < to_unsigned(pos) + 2; i++) {
+    for (int i = 0; i < pos + 2; i++) {
       busy[i] <= 0;
     }
     for (int i = 0; i < 32; i++) {
@@ -64,7 +62,7 @@ void RS::work() {
     // if (pc_wire == 0x113c) {
     //   std::cout << "error" << std::endl;
     // }
-    int i = to_unsigned(pos);
+    int i = 0;
     for (; i < RS_SIZE; i++) {
       if (busy[i] == 0) {
         break;
@@ -371,7 +369,7 @@ void RS::work() {
       }
     }
   }
-  for (int i = to_unsigned(head); i < to_unsigned(pos) + 2; i++) {
+  for (int i = 0; i < to_unsigned(pos) + 2; i++) {
     if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0) {
       if (from_rob) {
         // if (op[i] == LW) {

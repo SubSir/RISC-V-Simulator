@@ -42,8 +42,8 @@ void Memory::work() {
   pc_past <= pc_now;
   if (from_rs && !error) {
     if (pc_now < mem.size()) {
-      std::cout << std::hex << "        Memread : " << to_unsigned(pc)
-                << std::endl;
+      // std::cout << std::hex << "        Memread : " << to_unsigned(pc)
+      //           << std::endl;
       rs_get_out <= 1;
       Bit<32> ins = read_a_word(pc_now);
       int funct7 = to_unsigned(ins.range<31, 25>());
