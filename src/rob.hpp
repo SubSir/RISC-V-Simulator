@@ -5,7 +5,7 @@
 #include "tools.h"
 #include "wire.h"
 
-const int ROB_SIZE = 1024;
+const int ROB_SIZE = 512;
 struct RoB_Input {
   Wire<1> rob_get_in; // rob 获得了值设置为0
   Wire<32> from_rs_wire_op;
