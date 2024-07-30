@@ -7,10 +7,10 @@
 #include <iostream>
 
 using namespace std;
+dark::CPU cpu;
+RS rs;
+RoB rob;
 int main() {
-  dark::CPU cpu;
-  RS rs;
-  RoB rob;
   cpu.add_module(&rs);
   cpu.add_module(&rob);
   rob.memory.initialize();
