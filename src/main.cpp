@@ -13,6 +13,7 @@ RoB rob;
 int main() {
   cpu.add_module(&rs);
   cpu.add_module(&rob);
+  cpu.add_module(&rob.memory);
   rob.memory.initialize();
   rob.memory.from_rs = [&]() -> auto & { return rs.to_memory; };
   rs.from_memory_op = [&]() -> auto & { return rob.memory.to_rs_op; };
@@ -20,6 +21,7 @@ int main() {
   rs.from_memory_rs1 = [&]() -> auto & { return rob.memory.to_rs_rs1; };
   rs.from_memory_rs2 = [&]() -> auto & { return rob.memory.to_rs_rs2; };
   rs.from_memory_a = [&]() -> auto & { return rob.memory.to_rs_a; };
+  rs.from_memory_jump = [&]() -> auto & { return rob.memory.to_rs_jump; };
   rs.pc_wire = [&]() -> auto & { return rob.memory.pc_past; };
   rs.from_rob = [&]() -> auto & { return rob.to_rs; };
   rob.rob_get_in = [&]() -> auto & { return rs.rob_get_out; };
@@ -37,5 +39,12 @@ int main() {
   rob.from_rs_wire_rs1 = [&]() -> auto & { return rs.to_rob_wire_rs1; };
   rob.from_rs_wire_rs2 = [&]() -> auto & { return rs.to_rob_wire_rs2; };
   rob.from_rs_wire_time = [&]() -> auto & { return rs.to_rob_wire_time; };
+  rob.from_rs_wire_jump = [&]() -> auto & { return rs.to_rob_wire_jump; };
+  rob.memory.from_rob = [&]() -> auto & { return rob.to_memory; };
+  rob.memory.from_rob_jump = [&]() -> auto & { return rob.to_memory_jump; };
+  rob.memory.from_rob_pc = [&]() -> auto & { return rob.to_memory_pc; };
+  rob.memory.from_rob_predict = [&]() -> auto & {
+    return rob.to_memory_predict;
+  };
   cpu.run(20000000000, true);
 }

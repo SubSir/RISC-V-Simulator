@@ -15,6 +15,7 @@ struct RS_Input {
   Wire<32> from_memory_rs1;
   Wire<32> from_memory_rs2;
   Wire<32> from_memory_a;
+  Wire<1> from_memory_jump;
   Wire<1> from_rob_wire_update;
   Wire<32> pc_wire;
   Wire<1> rs_get_in; // rs 获得了值设置为0
@@ -30,6 +31,7 @@ struct RS_Output {
   dark::Register<32> to_rob_wire_pc;
   dark::Register<32> to_rob_wire_i;
   dark::Register<32> to_rob_wire_time;
+  dark::Register<1> to_rob_wire_jump;
   dark::Register<1> rob_get_out; // rob 获得了值设置为0
 };
 
@@ -45,6 +47,7 @@ struct RS_Private {
   std::array<dark::Register<32>, RS_SIZE> qk;
   std::array<dark::Register<32>, RS_SIZE> dest;
   std::array<dark::Register<32>, RS_SIZE> a;
+  std::array<dark::Register<1>, RS_SIZE> jump;
   std::array<dark::Register<32>, RS_SIZE> pc;
   std::array<dark::Register<32>, RS_SIZE> time;
   std::array<dark::Register<32>, 32> regs;

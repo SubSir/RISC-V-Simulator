@@ -6,14 +6,13 @@
 
 void RoB::work() {
   // terms++;
-  // // std::cout << "ROB Term is" << terms << std::endl;
+  // // // std::cout << "ROB Term is" << terms << std::endl;
   // if (terms == 8) {
-  //   // std::cout << "ROB Term is" << terms << std::endl;
+  //   // // std::cout << "ROB Term is" << terms << std::endl;
   // }
-  memory.work();
   bool twice = 0, error = 0, head_twice = 0, pos_shift = 0;
   int head = (to_unsigned(pos) + 1) % ROB_SIZE;
-  int to_rs_flag = 0;
+  int to_rs_flag = 0, to_memory_flag = 0;
   // std::cout << std::hex;
   if (busy[head]) {
     if (time[head] == 0) {
@@ -26,23 +25,23 @@ void RoB::work() {
       if (op[head] == ADD) {
         to_rs_wire_value <= (rs1[head] + rs2[head]);
         // std::cout << "ADD " << to_unsigned(rs1[head]) << " + "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SUB) {
         to_rs_wire_value <= (rs1[head] - rs2[head]);
         // std::cout << "SUB " << to_unsigned(rs1[head]) << " - "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == AND) {
         to_rs_wire_value <= (rs1[head] & rs2[head]);
         // std::cout << "AND " << to_unsigned(rs1[head]) << " & "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == OR) {
         to_rs_wire_value <= (rs1[head] | rs2[head]);
         // std::cout << "OR " << to_unsigned(rs1[head]) << " | "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == XOR) {
         to_rs_wire_value <= (rs1[head] ^ rs2[head]);
         // std::cout << "XOR " << to_unsigned(rs1[head]) << " ^ "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLL) {
         int shift = to_unsigned(rs2[head]);
         int d = to_unsigned(rs1[head]);
@@ -52,7 +51,7 @@ void RoB::work() {
         }
         to_rs_wire_value <= b;
         // std::cout << "SLL " << to_unsigned(rs1[head]) << " << "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRA) {
         int shift = to_unsigned(rs2[head]);
         int d = to_unsigned(rs1[head]);
@@ -66,7 +65,7 @@ void RoB::work() {
         }
         to_rs_wire_value <= b;
         // std::cout << "SRA " << to_unsigned(rs1[head]) << " >> "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SRL) {
         int shift = to_unsigned(rs2[head]);
         unsigned int d = to_unsigned(rs1[head]);
@@ -76,15 +75,15 @@ void RoB::work() {
         }
         to_rs_wire_value <= b;
         // std::cout << "SRL " << to_unsigned(rs1[head]) << " >> "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLT) {
         to_rs_wire_value <= (to_signed(rs1[head]) < to_signed(rs2[head]));
         // std::cout << "SLT " << to_unsigned(rs1[head]) << " < "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == SLTU) {
         to_rs_wire_value <= (to_unsigned(rs1[head]) < to_unsigned(rs2[head]));
         // std::cout << "SLTU " << to_unsigned(rs1[head]) << " < "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == ADDI) {
         to_rs_wire_value <= (rs1[head] + a[head]);
         // std::cout << "ADDI " << to_unsigned(rs1[head]) << " + "
@@ -147,24 +146,24 @@ void RoB::work() {
         Bit b = memory.read_byte(to_unsigned(rs1[head] + a[head]));
         to_rs_wire_value <= to_signed(b);
         // std::cout << "LB " << to_unsigned(rs1[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // <<  to_signed(a[head]) << std::endl;
       } else if (op[head] == LBU) {
         Bit b = memory.read_byte(to_unsigned(rs1[head] + a[head]));
         to_rs_wire_value <= to_unsigned(b);
         // std::cout << "LBU " << to_unsigned(rs1[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // <<  to_signed(a[head]) << std::endl;
       } else if (op[head] == LH) {
         Bit b = memory.read_half_word(to_unsigned(rs1[head] + a[head]));
 
         to_rs_wire_value <= to_signed(b);
         // std::cout << "LH " << to_unsigned(rs1[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // <<  to_signed(a[head]) << std::endl;
       } else if (op[head] == LHU) {
         Bit b = memory.read_half_word(to_unsigned(rs1[head] + a[head]));
 
         to_rs_wire_value <= to_unsigned(b);
         // std::cout << "LHU " << to_unsigned(rs1[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // <<  to_signed(a[head]) << std::endl;
       } else if (op[head] == LW) {
         Bit b = memory.read_a_word(to_unsigned(rs1[head] + a[head]));
 
@@ -194,75 +193,142 @@ void RoB::work() {
         // << to_signed(a[head]) << " : " << to_unsigned(rs2[head]) <<
         // std::endl;
       } else if (op[head] == BEQ) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         // std::cout << "BEQ " << to_unsigned(rs1[head])
         // << " == " << to_unsigned(rs2[head]) << std::endl;
         if (rs1[head] == rs2[head]) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
           // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
           // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
       } else if (op[head] == BGE) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         // std::cout << "BGE " << to_signed(rs1[head])
         // << " >= " << to_signed(rs2[head]) << std::endl;
         if (to_signed(rs1[head]) >= to_signed(rs2[head])) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
           // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
           // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
       } else if (op[head] == BGEU) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         // std::cout << "BGEU " << to_unsigned(rs1[head])
         // << " >= " << to_unsigned(rs2[head]) << std::endl;
         if (to_unsigned(rs1[head]) >= to_unsigned(rs2[head])) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
           // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
           // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
       } else if (op[head] == BLTU) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         // std::cout << "BLTU " << to_unsigned(rs1[head]) << " < "
-        // << to_unsigned(rs2[head]) << std::endl;
+        //<< to_unsigned(rs2[head]) << std::endl;
         if (to_unsigned(rs1[head]) < to_unsigned(rs2[head])) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
           // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
           // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
       } else if (op[head] == BLT) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         // std::cout << "BLT " << to_signed(rs1[head]) << " < "
         // << to_signed(rs2[head]) << std::endl;
         if (to_signed(rs1[head]) < to_signed(rs2[head])) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
           // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
           // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
       } else if (op[head] == BNE) {
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         to_rs_flag = 0;
         if (rs1[head] != rs2[head]) {
-          memory.pc <= pc[head] + a[head];
-          error = 1;
+          if (jump[head] == 0) {
+            error = 1;
+          }
+          to_memory_jump <= 1;
+          to_memory_pc <= pc[head] + a[head];
+          // std::cout << "Branch to " << to_unsigned(pc[head] + a[head])
+          // << std::endl;
+        } else {
+          if (jump[head] == 1) {
+            error = 1;
+          }
+          to_memory_jump <= 0;
+          to_memory_pc <= pc[head] + 4;
         }
-        // std::cout << "BNE " << to_unsigned(rs1[head])
-        // << " != " << to_unsigned(rs2[head]) << std::endl;
       } else if (op[head] == JAL) {
         to_rs_wire_value <= to_unsigned(pc[head]) + 4;
-        memory.pc <= pc[head] + a[head];
-        error = 1;
         // std::cout << "JAL " << to_unsigned(pc[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // << // to_signed(a[head]) << std::endl;
       } else if (op[head] == JALR) {
-        to_rs_wire_value <= to_unsigned(pc[head]) + 4;
-        memory.pc <= rs1[head] + a[head];
+        to_memory_flag = 1;
+        to_memory_predict <= pc[head];
         error = 1;
+        to_memory_jump <= 1;
+        to_memory_pc <= rs1[head] + a[head];
+        to_rs_wire_value <= to_unsigned(pc[head]) + 4;
         // std::cout << "JALR " << to_unsigned(rs1[head]) << " + "
-        // << to_signed(a[head]) << std::endl;
+        // << // to_signed(a[head]) << std::endl;
       } else if (op[head] == AUIPC) {
         Bit<32> b = a[head];
         to_rs_wire_value <= to_unsigned(pc[head]) + b;
@@ -288,6 +354,11 @@ void RoB::work() {
   }
   if (!to_rs_flag) {
     rs_get_out <= 0;
+  }
+  if (!to_memory_flag) {
+    to_memory <= 0;
+  } else {
+    to_memory <= 1;
   }
   if (error) {
     rob_error <= 1;
@@ -319,6 +390,7 @@ void RoB::work() {
     rs1[ii] <= from_rs_wire_rs1;
     rs2[ii] <= from_rs_wire_rs2;
     time[ii] <= from_rs_wire_time;
+    jump[ii] <= from_rs_wire_jump;
     max_pos <= std::max(ii, to_signed(max_pos));
   }
   if (!twice) {
@@ -334,9 +406,5 @@ void RoB::work() {
         time[i] <= time[i] - 1;
       }
     }
-  }
-
-  if (memory.from_rs && memory.pc < memory.mem.size()) {
-    memory.pc <= memory.pc + 4;
   }
 }

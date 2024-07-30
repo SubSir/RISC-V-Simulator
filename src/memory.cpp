@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 
-
 void Memory::initialize() {
   int pointer = 0;
   while (!std::cin.eof()) {
@@ -26,12 +25,24 @@ void Memory::initialize() {
 }
 
 void Memory::work() {
-  pc_past <= pc;
+  int pc_now = to_unsigned(pc);
+  if (from_rob) {
+    int pc_predict = to_unsigned(from_rob_predict);
+    if (from_rob_jump != to_unsigned(jump[pc_predict])) {
+      pc_now = to_unsigned(from_rob_pc);
+    }
+    if (from_rob_jump) {
+      predict[pc_predict] <= std::min(to_signed(predict[pc_predict]) + 1, 4);
+    } else {
+      predict[pc_predict] <= std::max(to_signed(predict[pc_predict]) - 1, 0);
+    }
+  }
+  pc_past <= pc_now;
   if (from_rs) {
-    if (pc < mem.size()) {
+    if (pc_now < mem.size()) {
       // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
       rs_get_out <= 1;
-      Bit<32> ins = read_a_word(to_unsigned(pc));
+      Bit<32> ins = read_a_word(pc_now);
       int funct7 = to_unsigned(ins.range<31, 25>());
       int funct3 = to_unsigned(ins.range<14, 12>());
       int opcode = to_unsigned(ins.range<6, 0>());
@@ -42,73 +53,87 @@ void Memory::work() {
       if (opcode == 0b0110011 && funct3 == 0b000 && funct7 == 0b0000000) {
         // ADD
         to_rs_op <= ADD;
+        pc <= pc_now + 4;
       } else if (opcode == 0b0110011 && funct3 == 0b000 &&
                  funct7 == 0b0100000) {
         // SUB
         to_rs_op <= SUB;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b111 &&
                  funct7 == 0b0000000) {
         // AND
         to_rs_op <= AND;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b110 &&
                  funct7 == 0b0000000) {
         // OR
         to_rs_op <= OR;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b100 &&
                  funct7 == 0b0000000) {
         // XOR
         to_rs_op <= XOR;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b001 &&
                  funct7 == 0b0000000) {
         // SLL
         to_rs_op <= SLL;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b101 &&
                  funct7 == 0b0000000) {
         // SRL
         to_rs_op <= SRL;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b101 &&
                  funct7 == 0b0100000) {
         // SRA
         to_rs_op <= SRA;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b010 &&
                  funct7 == 0b0000000) {
         // SLT
         to_rs_op <= SLT;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0110011 && funct3 == 0b011 &&
                  funct7 == 0b0000000) {
         // SLTU
         to_rs_op <= SLTU;
+        pc <= pc_now + 4;
 
       } else if (opcode == 0b0010011 && funct3 == 0b000) {
         // ADDI
         to_rs_op <= ADDI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b111) {
         // ANDI
         to_rs_op <= ANDI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b110) {
         // ORI
         to_rs_op <= ORI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b100) {
         // XORI
         to_rs_op <= XORI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b001 &&
@@ -116,6 +141,7 @@ void Memory::work() {
         // SLLI
         to_rs_op <= SLLI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_unsigned(ins.range<24, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b101 &&
@@ -123,6 +149,7 @@ void Memory::work() {
         // SRLI
         to_rs_op <= SRLI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_unsigned(ins.range<24, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b101 &&
@@ -130,48 +157,56 @@ void Memory::work() {
         // SRAI
         to_rs_op <= SRAI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_unsigned(ins.range<24, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b010) {
         // SLTI
         to_rs_op <= SLTI;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0010011 && funct3 == 0b011) {
         // SLTIU
         to_rs_op <= SLTIU;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_unsigned(ins.range<31, 20>());
       } else if (opcode == 0b0000011 && funct3 == 0b000) {
         // LB
         to_rs_op <= LB;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0000011 && funct3 == 0b100) {
         // LBU
         to_rs_op <= LBU;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0000011 && funct3 == 0b001) {
         // LH
         to_rs_op <= LH;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0000011 && funct3 == 0b101) {
         // LHU
         to_rs_op <= LHU;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b0000011 && funct3 == 0b010) {
         // LW
         to_rs_op <= LW;
         use2 = 0;
+        pc <= pc_now + 4;
 
         to_rs_a <= to_signed(ins.range<31, 20>());
         // std::cout << "lw,rd = " << rds
@@ -181,6 +216,7 @@ void Memory::work() {
         // SB
         to_rs_op <= SB;
         userd = 0;
+        pc <= pc_now + 4;
 
         Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
         to_rs_a <= to_signed(imm);
@@ -188,6 +224,7 @@ void Memory::work() {
         // SH
         to_rs_op <= SH;
         userd = 0;
+        pc <= pc_now + 4;
 
         Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
         to_rs_a <= to_signed(imm);
@@ -195,6 +232,7 @@ void Memory::work() {
         // SW
         to_rs_op <= SW;
         userd = 0;
+        pc <= pc_now + 4;
 
         Bit imm = {ins.range<31, 25>(), ins.range<11, 7>()};
         to_rs_a <= to_signed(imm);
@@ -202,55 +240,105 @@ void Memory::work() {
         // BEQ
         to_rs_op <= BEQ;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b101) {
         // BGE
         to_rs_op <= BGE;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b111) {
         // BGEU
         to_rs_op <= BGEU;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b100) {
         // BLT
         to_rs_op <= BLT;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b110) {
         // BLTU
         to_rs_op <= BLTU;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b001) {
         // BNE
         to_rs_op <= BNE;
         userd = 0;
-
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
+        if (predict[pc_now] > 1) {
+          pc <= pc + to_signed(imm);
+          to_rs_jump <= 1;
+          jump[pc_now] <= 1;
+        } else {
+          pc <= pc_now + 4;
+          to_rs_jump <= 0;
+          jump[pc_now] <= 0;
+        }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100111 && funct3 == 0b000) {
         // JALR
         to_rs_op <= JALR;
         use2 = 0;
-
+        pc <= pc_now + 4;
+        jump[pc_now] <= 0;
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b1101111) {
         // JAL
@@ -260,12 +348,14 @@ void Memory::work() {
 
         Bit imm = {ins[31], ins.range<19, 12>(), ins[20], ins.range<30, 21>(),
                    Bit<1>()};
+        pc <= pc_now + to_signed(imm);
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b0010111) {
         // AUIPC
         to_rs_op <= AUIPC;
         use1 = 0;
         use2 = 0;
+        pc <= pc_now + 4;
 
         Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
         to_rs_a <= to_signed(c);
@@ -274,6 +364,7 @@ void Memory::work() {
         to_rs_op <= LUI;
         use1 = 0;
         use2 = 0;
+        pc <= pc_now + 4;
 
         Bit<32> c = {ins.range<31, 12>(), Bit<12>()};
         to_rs_a <= to_signed(c);
@@ -282,6 +373,7 @@ void Memory::work() {
         use1 = 0;
         use2 = 0;
         userd = 0;
+        pc <= pc_now + 4;
       }
       if (use1) {
         to_rs_rs1 <= rs1;
@@ -302,6 +394,7 @@ void Memory::work() {
     }
   }
   rs_get_out <= 0;
+  pc <= pc_now;
 }
 
 Bit<8> Memory::read_byte(int address) {

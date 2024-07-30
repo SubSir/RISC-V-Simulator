@@ -16,6 +16,7 @@ struct RoB_Input {
   Wire<32> from_rs_wire_pc;
   Wire<32> from_rs_wire_i;
   Wire<32> from_rs_wire_time;
+  Wire<1> from_rs_wire_jump;
 };
 
 struct RoB_Output {
@@ -25,6 +26,10 @@ struct RoB_Output {
   dark::Register<32> to_rs_wire_i;
   dark::Register<32> to_rs_wire_value;
   dark::Register<1> update;
+  dark::Register<1> to_memory;
+  dark::Register<1> to_memory_jump;
+  dark::Register<32> to_memory_pc;
+  dark::Register<32> to_memory_predict;
 };
 
 struct RoB_Private {
@@ -38,6 +43,7 @@ struct RoB_Private {
   std::array<dark::Register<32>, ROB_SIZE> rs1;
   std::array<dark::Register<32>, ROB_SIZE> rs2;
   std::array<dark::Register<32>, ROB_SIZE> a;
+  std::array<dark::Register<1>, ROB_SIZE> jump;
   Memory memory;
 };
 struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
