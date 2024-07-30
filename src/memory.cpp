@@ -303,6 +303,7 @@ void Memory::work() {
 }
 
 Bit<8> Memory::read_byte(int address) {
+  address %= 0x10000;
   if (address >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
@@ -311,6 +312,7 @@ Bit<8> Memory::read_byte(int address) {
 }
 
 Bit<16> Memory::read_half_word(int address) {
+  address %= 0x10000;
   if (address + 1 >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
@@ -322,6 +324,7 @@ Bit<16> Memory::read_half_word(int address) {
 }
 
 Bit<32> Memory::read_a_word(int address) {
+  address %= 0x10000;
   if (address + 3 >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
@@ -335,6 +338,7 @@ Bit<32> Memory::read_a_word(int address) {
 }
 
 void Memory::store_byte(int address, Bit<8> value) {
+  address %= 0x10000;
   if (address >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
@@ -343,6 +347,7 @@ void Memory::store_byte(int address, Bit<8> value) {
 }
 
 void Memory::store_half_word(int address, Bit<16> value) {
+  address %= 0x10000;
   if (address + 1 >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
@@ -352,6 +357,7 @@ void Memory::store_half_word(int address, Bit<16> value) {
 }
 
 void Memory::store_a_word(int address, Bit<32> value) {
+  address %= 0x10000;
   if (address + 3 >= mem.size()) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
