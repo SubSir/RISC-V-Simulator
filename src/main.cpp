@@ -3,14 +3,11 @@
 #include "register.h"
 #include "rob.hpp"
 #include "rs.hpp"
-#include <chrono>
 #include <fstream>
 #include <iostream>
-#include <thread>
 
 using namespace std;
 int main() {
-  std::this_thread::sleep_for(std::chrono::seconds(5));
   dark::CPU cpu;
   RS rs;
   RoB rob;

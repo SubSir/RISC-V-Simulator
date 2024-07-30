@@ -17,7 +17,7 @@ void RS::work() {
           a[order] == 255) {
         print();
       }
-      Bit value = from_rob_wire_value;
+      Bit<32> value = from_rob_wire_value;
       if (rd[order] == 0) {
         value = 0;
       }
@@ -399,7 +399,7 @@ void RS::work() {
 }
 
 void RS::print() {
-  Bit a = regs[10];
+  Bit<32> a = regs[10];
   std::cout << std::dec << to_unsigned(a.range<7, 0>()) << std::endl;
   exit(0);
 }

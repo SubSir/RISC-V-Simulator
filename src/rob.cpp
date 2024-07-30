@@ -2,7 +2,7 @@
 #include "bit.h"
 #include "opcode.hpp"
 #include "tools.h"
-#include <ostream>
+#include <iostream>
 
 void RoB::work() {
   // terms++;
