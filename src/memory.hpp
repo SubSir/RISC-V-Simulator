@@ -14,7 +14,7 @@ struct Memory {
   dark::Register<32> pc;
   dark::Register<32> pc_past;
   dark::Register<32> reg;
-  std::array<dark::Register<8>, 0x31000> mem;
+  std::array<dark::Register<8>, 0x11000> mem;
   void initialize();
   void work();
   Bit<32> read_a_word(int address);
