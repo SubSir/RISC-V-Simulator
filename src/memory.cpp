@@ -3,6 +3,7 @@
 #include "tools.h"
 #include <cstddef>
 #include <cstdio>
+#include <ios>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -25,11 +26,12 @@ void Memory::initialize() {
 }
 
 void Memory::work() {
-  int pc_now = to_unsigned(pc);
+  int pc_now = to_unsigned(pc), error = 0;
   if (from_rob) {
     int pc_predict = to_unsigned(from_rob_predict);
     if (from_rob_jump != to_unsigned(jump[pc_predict])) {
       pc_now = to_unsigned(from_rob_pc);
+      error = 1;
     }
     if (from_rob_jump) {
       predict[pc_predict] <= std::min(to_signed(predict[pc_predict]) + 1, 4);
@@ -38,9 +40,10 @@ void Memory::work() {
     }
   }
   pc_past <= pc_now;
-  if (from_rs) {
+  if (from_rs && !error) {
     if (pc_now < mem.size()) {
-      // std::cout << "        Memread : " << to_unsigned(pc) << std::endl;
+      std::cout << std::hex << "        Memread : " << to_unsigned(pc)
+                << std::endl;
       rs_get_out <= 1;
       Bit<32> ins = read_a_word(pc_now);
       int funct7 = to_unsigned(ins.range<31, 25>());
@@ -338,6 +341,7 @@ void Memory::work() {
         to_rs_op <= JALR;
         use2 = 0;
         pc <= pc_now + 4;
+        to_rs_jump <= 0;
         jump[pc_now] <= 0;
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b1101111) {

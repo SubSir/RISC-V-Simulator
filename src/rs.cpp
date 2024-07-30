@@ -79,6 +79,7 @@ void RS::work() {
     bool use1 = 1, use2 = 1, userd = 1;
     dest[i] <= des;
     pc[i] <= pc_wire;
+    jump[i] <= from_memory_jump;
     commited[i] <= 0;
     if (opcode == ADD) {
       // ADD
@@ -389,6 +390,7 @@ void RS::work() {
         to_rob_wire_pc <= +pc[i];
         to_rob_wire_i <= i;
         to_rob_wire_time <= +time[i];
+        to_rob_wire_jump <= jump[i];
         break;
       }
     }
