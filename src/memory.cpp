@@ -3,8 +3,10 @@
 #include "tools.h"
 #include <cstddef>
 #include <cstdio>
+#include <iostream>
 #include <sstream>
 #include <string>
+
 
 void Memory::initialize() {
   int pointer = 0;

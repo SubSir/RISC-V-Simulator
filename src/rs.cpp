@@ -3,6 +3,7 @@
 #include "concept.h"
 #include "opcode.hpp"
 #include "tools.h"
+#include <iostream>
 void RS::work() {
   int free_rd = -1;
   Bit<32> free_rd_value = 0;

@@ -9,4 +9,4 @@ include_directories(include)
 
 add_executable(code ${sources})
 
-target_compile_definitions(code PRIVATE _DEBUG)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
