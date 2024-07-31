@@ -2,6 +2,7 @@
 #include "bit.h"
 #include "concept.h"
 #include "opcode.hpp"
+#include "rob.hpp"
 #include "tools.h"
 #include <iostream>
 void RS::work() {
@@ -23,13 +24,13 @@ void RS::work() {
       }
       // std::cout << "         " << to_unsigned(rd[order]) << " : "
       // << to_signed(value) << std::endl;
-      for (int i = 0; i < pos + 2; i++) {
+      for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
         if (busy[i] && qj[i] == dest[order]) {
-          qj[i] <= 0;
+          qj[i] <= RS_SIZE + 1;
           vj[i] <= value;
         }
         if (busy[i] && qk[i] == dest[order]) {
-          qk[i] <= 0;
+          qk[i] <= RS_SIZE + 1;
           vk[i] <= value;
         }
       }
@@ -56,7 +57,7 @@ void RS::work() {
     return;
   }
   int tmp = -1, twice = 0;
-  max_size_t des = to_unsigned(pos + 1);
+  max_size_t des = to_unsigned(pos);
   if (rs_get_in && from_memory_op != ELSE) {
     pos <= pos + 1;
     // if (pc_wire == 0x113c) {
@@ -325,26 +326,26 @@ void RS::work() {
       qj[i] <= reorder[rs1];
     } else if (use1 && free_rd == rs1) {
       vj[i] <= free_rd_value;
-      qj[i] <= 0;
+      qj[i] <= RS_SIZE + 1;
     } else if (use1) {
       vj[i] <= regs[rs1];
-      qj[i] <= 0;
+      qj[i] <= RS_SIZE + 1;
     } else {
       vj[i] <= 0;
-      qj[i] <= 0;
+      qj[i] <= RS_SIZE + 1;
     }
     if (use2 && (reorder_busy[rs2] && free_rd != rs2)) {
       vk[i] <= 0;
       qk[i] <= reorder[rs2];
     } else if (use2 && free_rd == rs2) {
       vk[i] <= free_rd_value;
-      qk[i] <= 0;
+      qk[i] <= RS_SIZE + 1;
     } else if (use2) {
       vk[i] <= regs[rs2];
-      qk[i] <= 0;
+      qk[i] <= RS_SIZE + 1;
     } else {
       vk[i] <= 0;
-      qk[i] <= 0;
+      qk[i] <= RS_SIZE + 1;
     }
     if (userd) {
       reorder_busy[rds] <= 1;
@@ -369,28 +370,28 @@ void RS::work() {
       }
     }
   }
-  for (int i = 0; i < to_unsigned(pos) + 2; i++) {
-    if (busy[i] && qj[i] == 0 && qk[i] == 0 && commited[i] == 0) {
-      if (from_rob) {
-        // if (op[i] == LW) {
-        //   std::cout << "lw: i = " << i << std::endl;
-        // }
-        // std::cout << std::dec << "          commited: i = " << i
-        //           << " op = " << to_unsigned(op[i]) << std::endl;
-        commited[i] <= 1;
-        rob_get_out <= 1;
-        rob_get_out_flag = 1;
-        to_rob_wire_op <= +op[i];
-        to_rob_wire_rs1 <= +vj[i];
-        to_rob_wire_rs2 <= +vk[i];
-        to_rob_wire_dest <= +dest[i];
-        to_rob_wire_a <= +a[i];
-        to_rob_wire_pc <= +pc[i];
-        to_rob_wire_i <= i;
-        to_rob_wire_time <= +time[i];
-        to_rob_wire_jump <= jump[i];
-        break;
-      }
+  for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
+    if (busy[i] && qj[i] == RS_SIZE + 1 && qk[i] == RS_SIZE + 1 &&
+        commited[i] == 0 &&
+        to_unsigned(dest[i]) < to_unsigned(from_rob_pos) + ROB_SIZE) {
+      // if (op[i] == LW) {
+      //   std::cout << "lw: i = " << i << std::endl;
+      // }
+      // std::cout << std::dec << "          commited: i = " << i
+      //           << " op = " << to_unsigned(op[i]) << std::endl;
+      commited[i] <= 1;
+      rob_get_out <= 1;
+      rob_get_out_flag = 1;
+      to_rob_wire_op <= +op[i];
+      to_rob_wire_rs1 <= +vj[i];
+      to_rob_wire_rs2 <= +vk[i];
+      to_rob_wire_dest <= +dest[i];
+      to_rob_wire_a <= +a[i];
+      to_rob_wire_pc <= +pc[i];
+      to_rob_wire_i <= i;
+      to_rob_wire_time <= +time[i];
+      to_rob_wire_jump <= jump[i];
+      break;
     }
   }
   if (!rob_get_out_flag) {

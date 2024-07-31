@@ -23,7 +23,7 @@ int main() {
   rs.from_memory_a = [&]() -> auto & { return rob.memory.to_rs_a; };
   rs.from_memory_jump = [&]() -> auto & { return rob.memory.to_rs_jump; };
   rs.pc_wire = [&]() -> auto & { return rob.memory.pc_past; };
-  rs.from_rob = [&]() -> auto & { return rob.to_rs; };
+  rs.from_rob_pos = [&]() -> auto & { return rob.to_rs_pos; };
   rob.rob_get_in = [&]() -> auto & { return rs.rob_get_out; };
   rs.rob_error = [&]() -> auto & { return rob.rob_error; };
   rs.from_rob_wire_i = [&]() -> auto & { return rob.to_rs_wire_i; };
@@ -46,5 +46,5 @@ int main() {
   rob.memory.from_rob_predict = [&]() -> auto & {
     return rob.to_memory_predict;
   };
-  cpu.run(20000000000, true);
+  cpu.run(20000000000, false);
 }

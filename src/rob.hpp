@@ -5,7 +5,7 @@
 #include "tools.h"
 #include "wire.h"
 
-const int ROB_SIZE = 512;
+const int ROB_SIZE = 128;
 struct RoB_Input {
   Wire<1> rob_get_in; // rob 获得了值设置为0
   Wire<32> from_rs_wire_op;
@@ -22,7 +22,7 @@ struct RoB_Input {
 struct RoB_Output {
   dark::Register<1> rs_get_out;
   dark::Register<1> rob_error;
-  dark::Register<1> to_rs;
+  dark::Register<32> to_rs_pos;
   dark::Register<32> to_rs_wire_i;
   dark::Register<32> to_rs_wire_value;
   dark::Register<1> update;
@@ -33,17 +33,6 @@ struct RoB_Output {
 };
 
 struct RoB_Private {
-  dark::Register<32> pos;
-  dark::Register<32> max_pos;
-  std::array<dark::Register<1>, ROB_SIZE> busy;
-  std::array<dark::Register<32>, ROB_SIZE> i;
-  std::array<dark::Register<32>, ROB_SIZE> op;
-  std::array<dark::Register<32>, ROB_SIZE> pc;
-  std::array<dark::Register<32>, ROB_SIZE> time;
-  std::array<dark::Register<32>, ROB_SIZE> rs1;
-  std::array<dark::Register<32>, ROB_SIZE> rs2;
-  std::array<dark::Register<32>, ROB_SIZE> a;
-  std::array<dark::Register<1>, ROB_SIZE> jump;
   Memory memory;
 };
 struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
@@ -51,7 +40,16 @@ struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
   // Wire<32> to_memory_wire_op;
   // Wire<32> to_memory_wire_address;
   // Wire<32> to_memory_wire_value;
+  int pos = {};
+  bool busy[ROB_SIZE] = {};
+  int i[ROB_SIZE] = {};
+  int op[ROB_SIZE] = {};
+  int pc[ROB_SIZE] = {};
+  int time[ROB_SIZE] = {};
+  int rs1[ROB_SIZE] = {};
+  int rs2[ROB_SIZE] = {};
+  int a[ROB_SIZE] = {};
+  bool jump[ROB_SIZE] = {};
   using RoB_Private::memory;
-  int terms = 0;
   void work() override final;
 };

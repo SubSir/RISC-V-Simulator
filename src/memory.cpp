@@ -20,7 +20,7 @@ void Memory::initialize() {
       ss << std::hex << line;
       unsigned int bit;
       ss >> bit;
-      mem[pointer++] <= bit;
+      mem[pointer++] = bit;
     }
   }
 }
@@ -29,19 +29,19 @@ void Memory::work() {
   int pc_now = to_unsigned(pc), error = 0;
   if (from_rob) {
     int pc_predict = to_unsigned(from_rob_predict);
-    if (from_rob_jump != to_unsigned(jump[pc_predict])) {
+    if (from_rob_jump != jump[pc_predict]) {
       pc_now = to_unsigned(from_rob_pc);
       error = 1;
     }
     if (from_rob_jump) {
-      predict[pc_predict] <= std::min(to_signed(predict[pc_predict]) + 1, 4);
+      predict[pc_predict] = std::min(predict[pc_predict] + 1, 4);
     } else {
-      predict[pc_predict] <= std::max(to_signed(predict[pc_predict]) - 1, 0);
+      predict[pc_predict] = std::max(predict[pc_predict] - 1, 0);
     }
   }
   pc_past <= pc_now;
   if (from_rs && !error) {
-    if (pc_now < mem.size()) {
+    if (pc_now < MEM_SIZE) {
       // std::cout << std::hex << "        Memread : " << to_unsigned(pc)
       //           << std::endl;
       rs_get_out <= 1;
@@ -246,13 +246,13 @@ void Memory::work() {
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b101) {
@@ -263,13 +263,13 @@ void Memory::work() {
                    Bit<1>()};
 
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b111) {
@@ -279,13 +279,13 @@ void Memory::work() {
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b100) {
@@ -295,13 +295,13 @@ void Memory::work() {
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b110) {
@@ -311,13 +311,13 @@ void Memory::work() {
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100011 && funct3 == 0b001) {
@@ -327,13 +327,13 @@ void Memory::work() {
         Bit imm = {ins[31], ins[7], ins.range<30, 25>(), ins.range<11, 8>(),
                    Bit<1>()};
         if (predict[pc_now] > 1) {
-          pc <= pc + to_signed(imm);
+          pc <= pc_now + to_signed(imm);
           to_rs_jump <= 1;
-          jump[pc_now] <= 1;
+          jump[pc_now] = 1;
         } else {
           pc <= pc_now + 4;
           to_rs_jump <= 0;
-          jump[pc_now] <= 0;
+          jump[pc_now] = 0;
         }
         to_rs_a <= to_signed(imm);
       } else if (opcode == 0b1100111 && funct3 == 0b000) {
@@ -342,7 +342,7 @@ void Memory::work() {
         use2 = 0;
         pc <= pc_now + 4;
         to_rs_jump <= 0;
-        jump[pc_now] <= 0;
+        jump[pc_now] = 0;
         to_rs_a <= to_signed(ins.range<31, 20>());
       } else if (opcode == 0b1101111) {
         // JAL
@@ -403,7 +403,7 @@ void Memory::work() {
 
 Bit<8> Memory::read_byte(int address) {
   address %= 0x10000;
-  if (address >= mem.size()) {
+  if (address >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
   }
@@ -412,7 +412,7 @@ Bit<8> Memory::read_byte(int address) {
 
 Bit<16> Memory::read_half_word(int address) {
   address %= 0x10000;
-  if (address + 1 >= mem.size()) {
+  if (address + 1 >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
   }
@@ -424,7 +424,7 @@ Bit<16> Memory::read_half_word(int address) {
 
 Bit<32> Memory::read_a_word(int address) {
   address %= 0x10000;
-  if (address + 3 >= mem.size()) {
+  if (address + 3 >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return 0;
   }
@@ -438,31 +438,31 @@ Bit<32> Memory::read_a_word(int address) {
 
 void Memory::store_byte(int address, Bit<8> value) {
   address %= 0x10000;
-  if (address >= mem.size()) {
+  if (address >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value;
+  mem[address] = to_unsigned(value);
 }
 
 void Memory::store_half_word(int address, Bit<16> value) {
   address %= 0x10000;
-  if (address + 1 >= mem.size()) {
+  if (address + 1 >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value.range<7, 0>();
-  mem[address + 1] <= value.range<15, 8>();
+  mem[address] = to_unsigned(value.range<7, 0>());
+  mem[address + 1] = to_unsigned(value.range<15, 8>());
 }
 
 void Memory::store_a_word(int address, Bit<32> value) {
   address %= 0x10000;
-  if (address + 3 >= mem.size()) {
+  if (address + 3 >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] <= value.range<7, 0>();
-  mem[address + 1] <= value.range<15, 8>();
-  mem[address + 2] <= value.range<23, 16>();
-  mem[address + 3] <= value.range<31, 24>();
+  mem[address] = to_unsigned(value.range<7, 0>());
+  mem[address + 1] = to_unsigned(value.range<15, 8>());
+  mem[address + 2] = to_unsigned(value.range<23, 16>());
+  mem[address + 3] = to_unsigned(value.range<31, 24>());
 }

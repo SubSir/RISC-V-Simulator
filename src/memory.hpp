@@ -4,6 +4,7 @@
 #include "register.h"
 #include "synchronize.h"
 #include <fstream>
+const int MEM_SIZE = 0x11000;
 struct Memory_Input {
   Wire<1> from_rs;      // rs 有剩余
   Wire<1> from_rob;     // rob 返回转移指令
@@ -24,13 +25,15 @@ struct Memory_Output {
   Register<1> to_rs_jump;
 };
 struct Memory_Private {
-  std::array<dark::Register<8>, 0x11000> mem;
-  std::array<dark::Register<1>, 0x11000> jump;
-  std::array<dark::Register<4>, 0x11000> predict;
+  int mem[MEM_SIZE] = {};
+  bool jump[MEM_SIZE] = {};
+  int predict[MEM_SIZE] = {};
 };
 
-struct Memory : dark::Module<Memory_Input, Memory_Output, Memory_Private> {
-  using Memory_Private::mem;
+struct Memory : dark::Module<Memory_Input, Memory_Output> {
+  int mem[MEM_SIZE] = {};
+  bool jump[MEM_SIZE] = {};
+  int predict[MEM_SIZE] = {};
   void initialize();
   void work() override final;
   Bit<32> read_a_word(int address);
