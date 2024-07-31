@@ -17,6 +17,8 @@ int main() {
   cpu.add_module(&rob);
   cpu.add_module(&lsb.memory);
   cpu.add_module(&lsb);
+  rs.total_predict = &lsb.memory.total_predict;
+  rs.predict_hit = &lsb.memory.predict_hit;
   lsb.memory.initialize();
   lsb.memory.from_rs = [&]() -> auto & { return rs.to_memory; };
   rs.from_memory_op = [&]() -> auto & { return lsb.memory.to_rs_op; };

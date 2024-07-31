@@ -31,6 +31,8 @@ struct Memory_Private {
 };
 
 struct Memory : dark::Module<Memory_Input, Memory_Output> {
+  int total_predict = 0;
+  int predict_hit = 0;
   int mem[MEM_SIZE] = {};
   bool jump[MEM_SIZE] = {};
   int predict[MEM_SIZE] = {};

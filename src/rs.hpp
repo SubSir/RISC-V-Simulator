@@ -64,7 +64,8 @@ struct RS_Private {
 };
 
 struct RS : dark::Module<RS_Input, RS_Output, RS_Private> {
-  int lsb_pos = 0;
+  int lsb_pos = 0, term = 0;
+  int *total_predict, *predict_hit;
   void work() override final;
   void print();
 };

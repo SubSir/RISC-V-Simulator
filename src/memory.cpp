@@ -28,9 +28,12 @@ void Memory::initialize() {
 void Memory::work() {
   int pc_now = to_unsigned(pc);
   if (from_rob) {
+    total_predict++;
     int pc_predict = to_unsigned(from_rob_predict);
     if (from_rob_jump != jump[pc_predict]) {
       pc_now = to_unsigned(from_rob_pc);
+    } else {
+      predict_hit++;
     }
     if (from_rob_jump) {
       predict[pc_predict] = std::min(predict[pc_predict] + 1, 4);

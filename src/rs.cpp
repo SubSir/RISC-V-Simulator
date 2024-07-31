@@ -6,6 +6,7 @@
 #include "tools.h"
 #include <iostream>
 void RS::work() {
+  term++;
   int free_rd = -1, to_lsb_flag = 0;
   Bit<32> free_rd_value = 0;
   if (rob_rs_get_in) {
@@ -428,5 +429,8 @@ void RS::work() {
 void RS::print() {
   Bit<32> a = regs[10];
   std::cout << std::dec << to_unsigned(a.range<7, 0>()) << std::endl;
+  std::cout << "Total term : " << term << std::endl;
+  std::cout << "Prediction precision : "
+            << 1.0 * (*predict_hit) / (*total_predict) << std::endl;
   exit(0);
 }
