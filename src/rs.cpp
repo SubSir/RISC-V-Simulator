@@ -46,6 +46,7 @@ void RS::work() {
   }
   if (rob_error) {
     rob_get_out <= 0;
+    to_lsb_in <= 0;
     pos <= 0;
     lsb_pos = 0;
     for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
