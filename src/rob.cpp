@@ -13,7 +13,7 @@ void RoB::work() {
   bool twice = 0, error = 0, head_twice = 0;
   int head = pos % ROB_SIZE;
   int to_rs_flag = 0, to_memory_flag = 0;
-  // std::cout << std::hex;
+  std::cout << std::hex;
   if (busy[head]) {
     if (time[head] == 0) {
       int value = -1;
@@ -21,7 +21,7 @@ void RoB::work() {
       head_twice = 1;
       pos++;
       to_rs_flag = 1;
-      // std::cout << "PC = " << pc[head] << '\n';
+      std::cout << "PC = " << pc[head] << '\n';
       if (op[head] == ADD) {
         to_rs_wire_value <= (rs1[head] + rs2[head]);
         // std::cout << "ADD " << to_unsigned(rs1[head]) << " + "

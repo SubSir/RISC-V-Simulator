@@ -26,12 +26,11 @@ void Memory::initialize() {
 }
 
 void Memory::work() {
-  int pc_now = to_unsigned(pc), error = 0;
+  int pc_now = to_unsigned(pc);
   if (from_rob) {
     int pc_predict = to_unsigned(from_rob_predict);
     if (from_rob_jump != jump[pc_predict]) {
       pc_now = to_unsigned(from_rob_pc);
-      error = 1;
     }
     if (from_rob_jump) {
       predict[pc_predict] = std::min(predict[pc_predict] + 1, 4);
@@ -40,7 +39,7 @@ void Memory::work() {
     }
   }
   pc_past <= pc_now;
-  if (from_rs && !error) {
+  if (from_rs) {
     if (pc_now < MEM_SIZE) {
       // std::cout << std::hex << "        Memread : " << to_unsigned(pc)
       //           << std::endl;

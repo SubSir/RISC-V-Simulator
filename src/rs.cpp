@@ -47,7 +47,7 @@ void RS::work() {
   if (rob_error) {
     rob_get_out <= 0;
     pos <= 0;
-    for (int i = 0; i < pos + 2; i++) {
+    for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
       busy[i] <= 0;
     }
     for (int i = 0; i < 32; i++) {
@@ -397,7 +397,7 @@ void RS::work() {
   if (!rob_get_out_flag) {
     rob_get_out <= 0;
   }
-  to_memory <= (cnt > 1);
+  to_memory <= (cnt > 2);
 }
 
 void RS::print() {
