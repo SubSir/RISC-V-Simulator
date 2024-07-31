@@ -25,17 +25,17 @@ void RS::work() {
       // std::cout << "         " << to_unsigned(rd[order]) << " : "
       // << to_signed(value) << std::endl;
       for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
-        if (busy[i] && qj[i] == dest[order]) {
+        if (busy[i] && qj[i] == order) {
           qj[i] <= RS_SIZE + 1;
           vj[i] <= value;
         }
-        if (busy[i] && qk[i] == dest[order]) {
+        if (busy[i] && qk[i] == order) {
           qk[i] <= RS_SIZE + 1;
           vk[i] <= value;
         }
       }
       for (int i = 0; i < 32; i++) {
-        if (reorder_busy[i] && reorder[i] == dest[order]) {
+        if (reorder_busy[i] && reorder[i] == order) {
           if (rob_error == 0)
             free_rd = i;
         }
@@ -349,7 +349,7 @@ void RS::work() {
     }
     if (userd) {
       reorder_busy[rds] <= 1;
-      reorder[rds] <= des;
+      reorder[rds] <= i;
       rd[i] <= rds;
       if (rds == free_rd) {
         twice = 1;
