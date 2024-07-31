@@ -54,6 +54,7 @@ struct RS_Private {
   std::array<dark::Register<32>, RS_SIZE> qk;
   std::array<dark::Register<32>, RS_SIZE> dest;
   std::array<dark::Register<32>, RS_SIZE> a;
+  std::array<dark::Register<32>, RS_SIZE> lsb_poses;
   std::array<dark::Register<1>, RS_SIZE> jump;
   std::array<dark::Register<32>, RS_SIZE> pc;
   std::array<dark::Register<1>, RS_SIZE> ready;

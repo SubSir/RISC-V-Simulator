@@ -189,6 +189,8 @@ void RS::work() {
       use2 = 0;
       ready[i] <= 0;
       a[i] <= from_memory_a;
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
 
     } else if (opcode == LBU) {
       // LBU
@@ -196,28 +198,32 @@ void RS::work() {
       use2 = 0;
       ready[i] <= 0;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == LH) {
       // LH
       op[i] <= LH;
       use2 = 0;
       ready[i] <= 0;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == LHU) {
       // LHU
       op[i] <= LHU;
       use2 = 0;
       ready[i] <= 0;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == LW) {
       // LW
       op[i] <= LW;
       use2 = 0;
       ready[i] <= 0;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
       // std::cout << "lw,rd = " << rds
       //           << " ,rs1 = " << rs1 << " ,i = " << i
       //           << std::endl;
@@ -227,21 +233,24 @@ void RS::work() {
       userd = 0;
       ready[i] <= 1;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == SH) {
       // SH
       op[i] <= SH;
       userd = 0;
       ready[i] <= 1;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == SW) {
       // SW
       op[i] <= SW;
       userd = 0;
       ready[i] <= 1;
       a[i] <= from_memory_a;
-
+      lsb_poses[i] <= lsb_pos;
+      lsb_pos++;
     } else if (opcode == BEQ) {
       // BEQ
       op[i] <= BEQ;
@@ -401,8 +410,7 @@ void RS::work() {
         to_lsb_wire_op <= +op[i];
         to_lsb_wire_rs1 <= +vj[i];
         to_lsb_wire_rs2 <= +vk[i];
-        to_lsb_wire_pos <= lsb_pos;
-        lsb_pos++;
+        to_lsb_wire_pos <= lsb_poses[i];
       }
       break;
     }

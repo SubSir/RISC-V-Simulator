@@ -17,7 +17,7 @@ void LSB::work() {
           memory.store_byte(address[head], value[head]);
         } else if (op[head] == SH) {
           memory.store_half_word(address[head], value[head]);
-        } else {
+        } else if (op[head] == SW) {
           memory.store_a_word(address[head], value[head]);
         }
       }
