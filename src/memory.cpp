@@ -435,16 +435,16 @@ Bit<32> Memory::read_a_word(int address) {
   return e;
 }
 
-void Memory::store_byte(int address, Bit<8> value) {
+void Memory::store_byte(int address, Bit<32> value) {
   address %= 0x10000;
   if (address >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;
     return;
   }
-  mem[address] = to_unsigned(value);
+  mem[address] = to_unsigned(value.range<7, 0>());
 }
 
-void Memory::store_half_word(int address, Bit<16> value) {
+void Memory::store_half_word(int address, Bit<32> value) {
   address %= 0x10000;
   if (address + 1 >= MEM_SIZE) {
     std::cout << "Error: Memory address out of range" << std::endl;

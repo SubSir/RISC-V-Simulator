@@ -6,7 +6,7 @@
 #include "tools.h"
 #include <iostream>
 void RS::work() {
-  int free_rd = -1;
+  int free_rd = -1, to_lsb_flag = 0;
   Bit<32> free_rd_value = 0;
   if (rob_rs_get_in) {
     int order = to_unsigned(from_rob_wire_i);
@@ -47,6 +47,7 @@ void RS::work() {
   if (rob_error) {
     rob_get_out <= 0;
     pos <= 0;
+    lsb_pos = 0;
     for (int i = 0; i < std::min(to_signed(pos) + 2, RS_SIZE); i++) {
       busy[i] <= 0;
     }
@@ -83,138 +84,138 @@ void RS::work() {
     if (opcode == ADD) {
       // ADD
       op[i] <= ADD;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SUB) {
       // SUB
       op[i] <= SUB;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == AND) {
       // AND
       op[i] <= AND;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == OR) {
       // OR
       op[i] <= OR;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == XOR) {
       // XOR
       op[i] <= XOR;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SLL) {
       // SLL
       op[i] <= SLL;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SRL) {
       // SRL
       op[i] <= SRL;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SRA) {
       // SRA
       op[i] <= SRA;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SLT) {
       // SLT
       op[i] <= SLT;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == SLTU) {
       // SLTU
       op[i] <= SLTU;
-      time[i] <= 0;
+      ready[i] <= 1;
     } else if (opcode == ADDI) {
       // ADDI
       op[i] <= ADDI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
     } else if (opcode == ANDI) {
       // ANDI
       op[i] <= ANDI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == ORI) {
       // ORI
       op[i] <= ORI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == XORI) {
       // XORI
       op[i] <= XORI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SLLI) {
       // SLLI
       op[i] <= SLLI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SRLI) {
       // SRLI
       op[i] <= SRLI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SRAI) {
       // SRAI
       op[i] <= SRAI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SLTI) {
       // SLTI
       op[i] <= SLTI;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SLTIU) {
       // SLTIU
       op[i] <= SLTIU;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == LB) {
       // LB
       op[i] <= LB;
       use2 = 0;
-      time[i] <= 3;
+      ready[i] <= 0;
       a[i] <= from_memory_a;
 
     } else if (opcode == LBU) {
       // LBU
       op[i] <= LBU;
       use2 = 0;
-      time[i] <= 3;
+      ready[i] <= 0;
       a[i] <= from_memory_a;
 
     } else if (opcode == LH) {
       // LH
       op[i] <= LH;
       use2 = 0;
-      time[i] <= 3;
+      ready[i] <= 0;
       a[i] <= from_memory_a;
 
     } else if (opcode == LHU) {
       // LHU
       op[i] <= LHU;
       use2 = 0;
-      time[i] <= 3;
+      ready[i] <= 0;
       a[i] <= from_memory_a;
 
     } else if (opcode == LW) {
       // LW
       op[i] <= LW;
       use2 = 0;
-      time[i] <= 3;
+      ready[i] <= 0;
       a[i] <= from_memory_a;
 
       // std::cout << "lw,rd = " << rds
@@ -224,70 +225,70 @@ void RS::work() {
       // SB
       op[i] <= SB;
       userd = 0;
-      time[i] <= 3;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SH) {
       // SH
       op[i] <= SH;
       userd = 0;
-      time[i] <= 3;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == SW) {
       // SW
       op[i] <= SW;
       userd = 0;
-      time[i] <= 3;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BEQ) {
       // BEQ
       op[i] <= BEQ;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BGE) {
       // BGE
       op[i] <= BGE;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BGEU) {
       // BGEU
       op[i] <= BGEU;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BLT) {
       // BLT
       op[i] <= BLT;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BLTU) {
       // BLTU
       op[i] <= BLTU;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == BNE) {
       // BNE
       op[i] <= BNE;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == JALR) {
       // JALR
       op[i] <= JALR;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == JAL) {
@@ -295,7 +296,7 @@ void RS::work() {
       op[i] <= JAL;
       use1 = 0;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == AUIPC) {
@@ -303,7 +304,7 @@ void RS::work() {
       op[i] <= AUIPC;
       use1 = 0;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else if (opcode == LUI) {
@@ -311,7 +312,7 @@ void RS::work() {
       op[i] <= LUI;
       use1 = 0;
       use2 = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
       a[i] <= from_memory_a;
 
     } else {
@@ -319,7 +320,7 @@ void RS::work() {
       use1 = 0;
       use2 = 0;
       userd = 0;
-      time[i] <= 0;
+      ready[i] <= 1;
     }
     if (use1 && (reorder_busy[rs1] && free_rd != rs1)) {
       vj[i] <= 0;
@@ -389,13 +390,28 @@ void RS::work() {
       to_rob_wire_a <= +a[i];
       to_rob_wire_pc <= +pc[i];
       to_rob_wire_i <= i;
-      to_rob_wire_time <= +time[i];
+      to_rob_wire_ready <= ready[i];
       to_rob_wire_jump <= jump[i];
+      if (op[i] == LW || op[i] == LB || op[i] == LBU || op[i] == LH ||
+          op[i] == LHU || op[i] == SW || op[i] == SB || op[i] == SH) {
+        to_lsb_flag = 1;
+        to_lsb_in <= 1;
+        to_lsb_wire_a <= +a[i];
+        to_lsb_wire_dest <= +dest[i];
+        to_lsb_wire_op <= +op[i];
+        to_lsb_wire_rs1 <= +vj[i];
+        to_lsb_wire_rs2 <= +vk[i];
+        to_lsb_wire_pos <= lsb_pos;
+        lsb_pos++;
+      }
       break;
     }
   }
   if (!rob_get_out_flag) {
     rob_get_out <= 0;
+  }
+  if (!to_lsb_flag) {
+    to_lsb_in <= 0;
   }
   to_memory <= (cnt > 2);
 }

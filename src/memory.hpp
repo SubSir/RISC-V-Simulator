@@ -40,6 +40,6 @@ struct Memory : dark::Module<Memory_Input, Memory_Output> {
   Bit<16> read_half_word(int address);
   Bit<8> read_byte(int address);
   void store_a_word(int address, Bit<32> value);
-  void store_half_word(int address, Bit<16> value);
-  void store_byte(int address, Bit<8> value);
+  void store_half_word(int address, Bit<32> value);
+  void store_byte(int address, Bit<32> value);
 };

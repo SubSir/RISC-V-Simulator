@@ -30,9 +30,16 @@ struct RS_Output {
   dark::Register<32> to_rob_wire_a;
   dark::Register<32> to_rob_wire_pc;
   dark::Register<32> to_rob_wire_i;
-  dark::Register<32> to_rob_wire_time;
+  dark::Register<1> to_rob_wire_ready;
   dark::Register<1> to_rob_wire_jump;
   dark::Register<1> rob_get_out; // rob 获得了值设置为0
+  dark::Register<1> to_lsb_in;
+  dark::Register<32> to_lsb_wire_op;
+  dark::Register<32> to_lsb_wire_rs1;
+  dark::Register<32> to_lsb_wire_rs2;
+  dark::Register<32> to_lsb_wire_dest;
+  dark::Register<32> to_lsb_wire_a;
+  dark::Register<32> to_lsb_wire_pos;
 };
 
 struct RS_Private {
@@ -49,13 +56,14 @@ struct RS_Private {
   std::array<dark::Register<32>, RS_SIZE> a;
   std::array<dark::Register<1>, RS_SIZE> jump;
   std::array<dark::Register<32>, RS_SIZE> pc;
-  std::array<dark::Register<32>, RS_SIZE> time;
+  std::array<dark::Register<1>, RS_SIZE> ready;
   std::array<dark::Register<32>, 32> regs;
   std::array<dark::Register<32>, 32> reorder;
   std::array<dark::Register<1>, 32> reorder_busy;
 };
 
 struct RS : dark::Module<RS_Input, RS_Output, RS_Private> {
+  int lsb_pos = 0;
   void work() override final;
   void print();
 };

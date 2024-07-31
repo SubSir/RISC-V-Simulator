@@ -15,8 +15,11 @@ struct RoB_Input {
   Wire<32> from_rs_wire_a;
   Wire<32> from_rs_wire_pc;
   Wire<32> from_rs_wire_i;
-  Wire<32> from_rs_wire_time;
+  Wire<1> from_rs_wire_ready;
   Wire<1> from_rs_wire_jump;
+  Wire<1> lsb_get_in;
+  Wire<32> from_lsb_dest;
+  Wire<32> from_lsb_wire_value;
 };
 
 struct RoB_Output {
@@ -30,26 +33,25 @@ struct RoB_Output {
   dark::Register<1> to_memory_jump;
   dark::Register<32> to_memory_pc;
   dark::Register<32> to_memory_predict;
+  dark::Register<1> to_lsb;
+  dark::Register<32> to_lsb_dest;
 };
 
-struct RoB_Private {
-  Memory memory;
-};
-struct RoB : dark::Module<RoB_Input, RoB_Output, RoB_Private> {
+struct RoB : dark::Module<RoB_Input, RoB_Output> {
   // Wire<1> memory_get; // memory 获得了值设置为0
   // Wire<32> to_memory_wire_op;
   // Wire<32> to_memory_wire_address;
   // Wire<32> to_memory_wire_value;
   int pos = {};
   bool busy[ROB_SIZE] = {};
+  int dest[ROB_SIZE] = {};
   int i[ROB_SIZE] = {};
   int op[ROB_SIZE] = {};
   int pc[ROB_SIZE] = {};
-  int time[ROB_SIZE] = {};
+  bool ready[ROB_SIZE] = {};
   int rs1[ROB_SIZE] = {};
   int rs2[ROB_SIZE] = {};
   int a[ROB_SIZE] = {};
   bool jump[ROB_SIZE] = {};
-  using RoB_Private::memory;
   void work() override final;
 };
