@@ -10,7 +10,7 @@ void LSB::work() {
     pos = to_unsigned(from_rob_wire_dest);
   }
   if (rob_error) {
-    if (busy[head]) {
+    while (busy[head]) {
       if (pos >= dest[head]) {
         busy[head] = 0;
         if (op[head] == SB) {
@@ -21,6 +21,7 @@ void LSB::work() {
           memory.store_a_word(address[head], value[head]);
         }
       }
+      head = (head + 1) % LSB_SIZE;
     }
     head = 0;
     pos = -1;
